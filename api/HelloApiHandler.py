@@ -17,7 +17,6 @@ class HelloApiHandler(Resource):
 
     print(args)
     # note, the post req from frontend needs to match the strings here (e.g. 'type and 'message')
-
     request_type = args['type']
     request_json = args['message']
     # ret_status, ret_msg = ReturnData(request_type, request_json)
