@@ -32,7 +32,9 @@ const useStyles = makeStyles(theme => ({
 
 export default function RegisterScreen() {
   const classes = useStyles();
-
+  const handleOnSubmit = () => {
+    console.log()
+  }
   return (
     <Container component='main' maxWidth='xs'>
       <CssBaseline />
@@ -43,7 +45,7 @@ export default function RegisterScreen() {
         <Typography component='h1' variant='h5'>
           Sign up
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} noValidate onSubmit={handleOnSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
