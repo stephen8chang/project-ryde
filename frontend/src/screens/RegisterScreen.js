@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import axios from 'axios'
-import { useScrollTrigger } from '@material-ui/core';
+import BlockIcon from '@material-ui/icons/Block';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -32,6 +32,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+
 export default function RegisterScreen() {
   const classes = useStyles();
   const [firstName, setFirstName] = useState('');
@@ -39,12 +40,18 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  // const [isPassWrong, setIsPassWrong] = useState(false)
+  const [isPassWrong, setIsPassWrong] = useState(false)
   const handleOnSubmit = async () => {
-    // if(password !== confirmPassword){
-    //   setIsPassWrong(true)
-    // }
-    await axios.post('/api/register', {firstName, lastName, email, password})
+    if(confirmPassword === password)
+      await axios.post('/api/register', {firstName, lastName, email, password})
+  }
+  const checkConfirmPass= val => {
+    if(password !== val){
+      setIsPassWrong(true)
+    } else{
+      setConfirmPassword(val)
+      setIsPassWrong(false)
+    }
   }
   return (
     <Container component='main' maxWidth='xs'>
@@ -56,7 +63,6 @@ export default function RegisterScreen() {
         <Typography component='h1' variant='h5'>
           Sign up
         </Typography>
-        {/* {this.state.ifPassWrong ? <p>Sorry, the passwords dont match</p> : null} */}
         <form className={classes.form} noValidate onSubmit={handleOnSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -121,9 +127,17 @@ export default function RegisterScreen() {
                 label='Confirm Password'
                 type='password'
                 id='confirmPassword'
-                onChange={e => setConfirmPassword(e.target.value)}
+                onChange={e => checkConfirmPass(e.target.value)}
 
               />
+            <Grid item xs={12}>
+            {isPassWrong ? 
+            (<React.Fragment>
+              <a>Sorry, the passwords dont match </a>
+              <BlockIcon></BlockIcon>
+             </React.Fragment>)
+             : null}
+             </Grid>
             </Grid>
           </Grid>
           <Button

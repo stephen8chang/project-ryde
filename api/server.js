@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
   res.send('Home');
 });
 require('./routes/authRoutes')(app);
-
+require('./routes/getUserInfo')(app)
 
 const PORT = process.env.PORT || 9000;
 app.listen(PORT, console.log(`Server running on ${PORT}`));
