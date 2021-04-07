@@ -4,10 +4,13 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 // const keys = require('./config/dev');
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+mongoose.connect(
+  'mongodb+srv://normanwang1234:2813959637Hi+@project-ryde.fnx34.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }
+);
 dotenv.config();
 const app = express();
 if (process.env.NODE_ENV === 'development') {
