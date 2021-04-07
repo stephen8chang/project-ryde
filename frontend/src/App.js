@@ -19,9 +19,9 @@ class App extends Component {
     .then(res => this.setState({ apiResponse: res }));
   }
 
-  componentWillMount() {
-    this.callAPI();
-  }
+  // componentWillMount() {
+  //   this.callAPI();
+  // }
   
   // const [getMessage, setGetMessage] = useState({});
 
@@ -54,7 +54,7 @@ class App extends Component {
             <Route path='/login' component={LoginScreen} />
           </div>
         </BrowserRouter>
-        <p className="App-intro">;{this.state.apiResponse}</p>
+        {/* <p className="App-intro">;{this.state.apiResponse}</p> */}
       </div>
     );
   }

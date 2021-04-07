@@ -2,9 +2,9 @@ const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const keys = require('./config/dev');
+// const keys = require('./config/dev');
 
-mongoose.connect(keys.MONGODB_URI, {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -17,6 +17,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('Home');
 });
+require('./routes/authRoutes')(app);
+
 
 const PORT = process.env.PORT || 9000;
 app.listen(PORT, console.log(`Server running on ${PORT}`));

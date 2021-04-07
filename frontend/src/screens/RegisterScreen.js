@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -9,6 +9,8 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import axios from 'axios'
+import { useScrollTrigger } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -32,8 +34,17 @@ const useStyles = makeStyles(theme => ({
 
 export default function RegisterScreen() {
   const classes = useStyles();
-  const handleOnSubmit = () => {
-    console.log()
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  // const [isPassWrong, setIsPassWrong] = useState(false)
+  const handleOnSubmit = async () => {
+    // if(password !== confirmPassword){
+    //   setIsPassWrong(true)
+    // }
+    await axios.post('/api/register', {firstName, lastName, email, password})
   }
   return (
     <Container component='main' maxWidth='xs'>
@@ -45,6 +56,7 @@ export default function RegisterScreen() {
         <Typography component='h1' variant='h5'>
           Sign up
         </Typography>
+        {/* {this.state.ifPassWrong ? <p>Sorry, the passwords dont match</p> : null} */}
         <form className={classes.form} noValidate onSubmit={handleOnSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -57,6 +69,7 @@ export default function RegisterScreen() {
                 id='firstName'
                 label='First Name'
                 autoFocus
+                onChange={e => setFirstName(e.target.value)}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -68,6 +81,8 @@ export default function RegisterScreen() {
                 label='Last Name'
                 name='lastName'
                 autoComplete='lname'
+                onChange={e => setLastName(e.target.value)}
+
               />
             </Grid>
             <Grid item xs={12}>
@@ -79,6 +94,8 @@ export default function RegisterScreen() {
                 label='Email Address'
                 name='email'
                 autoComplete='email'
+                onChange={e => setEmail(e.target.value)}
+
               />
             </Grid>
             <Grid item xs={12}>
@@ -91,6 +108,8 @@ export default function RegisterScreen() {
                 type='password'
                 id='password'
                 autoComplete='current-password'
+                onChange={e => setPassword(e.target.value)}
+
               />
             </Grid>
             <Grid item xs={12}>
@@ -102,6 +121,8 @@ export default function RegisterScreen() {
                 label='Confirm Password'
                 type='password'
                 id='confirmPassword'
+                onChange={e => setConfirmPassword(e.target.value)}
+
               />
             </Grid>
           </Grid>
