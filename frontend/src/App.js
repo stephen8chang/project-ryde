@@ -1,7 +1,10 @@
-import logo from './logo.svg';
 import './App.css';
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Route } from "react-router-dom";
 import axios from 'axios'
+import LoginScreen from './components/screens/LoginScreen';
+import RegisterScreen from './components/screens/RegisterScreen'
+import DashboardScreen from './components/screens/DashboardScreen'
 
 function App() {
   const [getMessage, setGetMessage] = useState({})
@@ -23,16 +26,16 @@ function App() {
   }, [])
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>React + Flask Tutorial</p>
-        <div>{getMessage.status === 200 ? 
-          <h3>{getMessage.data.message}</h3>
-          :
-          <h3>LOADING</h3>}</div>
-      </header>
-    </div>
+    <div className="container">
+    <BrowserRouter>
+      <div className='container'>
+        {/* <Header /> */}
+        <Route exact path="/" component={DashboardScreen} />
+        <Route path="/register" component={RegisterScreen} />
+        <Route path="/login" component={LoginScreen} />
+      </div>
+    </BrowserRouter>
+  </div>
   );
 }
 
