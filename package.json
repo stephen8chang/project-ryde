@@ -1,0 +1,27 @@
+{
+  "name": "project-ryde",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node api/server.js",
+    "server": "nodemon api/server.js",
+    "client": "npm start --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stephen8chang/project-ryde.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stephen8chang/project-ryde/issues"
+  },
+  "homepage": "https://github.com/stephen8chang/project-ryde#readme",
+  "dependencies": {
+    "concurrently": "^6.0.1",
+    "http-proxy-middleware": "^1.1.0",
+    "nodemon": "^2.0.7"
+  }
+}
