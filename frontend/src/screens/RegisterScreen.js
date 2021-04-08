@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {isValidElement, useState} from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -41,18 +41,36 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isPassWrong, setIsPassWrong] = useState(false)
+  const [isEmailValid, setIsEmailValid] = useState(true)
   const handleOnSubmit = async () => {
     if(confirmPassword === password)
       await axios.post('/api/register', {firstName, lastName, email, password})
   }
   const checkConfirmPass= val => {
-    if(password !== val){
-      setIsPassWrong(true)
-    } else{
-      setConfirmPassword(val)
+    if(val !== ''){
+      if(password !== val){
+        setIsPassWrong(true)
+      } else{
+        setConfirmPassword(val)
+        setIsPassWrong(false)
+      }
+    } else {
       setIsPassWrong(false)
     }
   }
+  const checkEmailValid = mail => {
+    if(mail === ''){
+      setIsEmailValid(true)
+      return
+    }
+    if(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      .test(mail.toLowerCase())){
+        setIsEmailValid(true)
+    } else {
+      setIsEmailValid(false)
+    }
+  }
+
   return (
     <Container component='main' maxWidth='xs'>
       <CssBaseline />
@@ -100,7 +118,7 @@ export default function RegisterScreen() {
                 label='Email Address'
                 name='email'
                 autoComplete='email'
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => checkEmailValid(e.target.value)}
 
               />
             </Grid>
@@ -128,11 +146,21 @@ export default function RegisterScreen() {
                 type='password'
                 id='confirmPassword'
                 onChange={e => checkConfirmPass(e.target.value)}
+                
               />
               <Grid item xs={12}>
               {isPassWrong ? 
               (<React.Fragment>
               <a>Sorry, the passwords dont match </a>
+              <BlockIcon></BlockIcon>
+              </React.Fragment>)
+              : null}
+             </Grid>
+
+             <Grid item xs={12}>
+              {!isEmailValid ? 
+              (<React.Fragment>
+              <a>Invalid email</a>
               <BlockIcon></BlockIcon>
               </React.Fragment>)
               : null}
