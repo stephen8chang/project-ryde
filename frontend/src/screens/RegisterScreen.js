@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Alert } from '@material-ui/lab';
 import {
   Avatar,
@@ -44,18 +44,14 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  // const [isPassWrong, setIsPassWrong] = useState(false)
+  const [matchingPassword, setMatchingPassword] = useState(true);
   const handleOnSubmit = async () => {
-    // if(password !== confirmPassword){
-    //   setIsPassWrong(true)
-    // }
     let { data } = await axios.post('/api/register', {
       firstName,
       lastName,
       email,
       password
     });
-    console.log(data);
     if (data.redirectUrl) {
       history.push(data.redirectUrl);
     } else {
@@ -64,6 +60,15 @@ export default function RegisterScreen() {
       }
     }
   };
+  useEffect(() => {
+    if (password !== '' && confirmPassword !== '') {
+      if (password !== confirmPassword) {
+        setErrorMessage('Passwords do not match');
+      } else {
+        setErrorMessage('');
+      }
+    }
+  }, [confirmPassword, password]);
   return (
     <Container component='main' maxWidth='xs'>
       <CssBaseline />
@@ -74,7 +79,6 @@ export default function RegisterScreen() {
         <Typography component='h1' variant='h5'>
           Sign up
         </Typography>
-        {/* {this.state.ifPassWrong ? <p>Sorry, the passwords dont match</p> : null} */}
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <TextField
