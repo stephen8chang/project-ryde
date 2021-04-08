@@ -128,15 +128,14 @@ export default function RegisterScreen() {
                 type='password'
                 id='confirmPassword'
                 onChange={e => checkConfirmPass(e.target.value)}
-
               />
-            <Grid item xs={12}>
-            {isPassWrong ? 
-            (<React.Fragment>
+              <Grid item xs={12}>
+              {isPassWrong ? 
+              (<React.Fragment>
               <a>Sorry, the passwords dont match </a>
               <BlockIcon></BlockIcon>
-             </React.Fragment>)
-             : null}
+              </React.Fragment>)
+              : null}
              </Grid>
             </Grid>
           </Grid>
