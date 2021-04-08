@@ -4,6 +4,7 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import DashboardScreen from './screens/DashboardScreen';
+import DatasetScreen from './screens/DatasetScreen';
 import NavBar from './components/NavBar';
 
 class App extends Component {
@@ -16,6 +17,7 @@ class App extends Component {
             <Route exact path='/dash' component={DashboardScreen} />
             <Route path='/register' component={RegisterScreen} />
             <Route path='/login' component={LoginScreen} />
+            <Route path='/dataset' component={DatasetScreen} />
           </div>
         </BrowserRouter>
       </div>
