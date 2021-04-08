@@ -33,4 +33,8 @@ module.exports = app => {
     res.send({ message: 'Email and password match!' });
     return user;
   });
+
+  app.get('/api/getUserInfo', async (req, res) => {
+    
+  })
 };

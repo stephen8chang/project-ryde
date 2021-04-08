@@ -32,6 +32,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+
 export default function RegisterScreen() {
   const classes = useStyles();
   const [firstName, setFirstName] = useState('');
@@ -62,7 +63,6 @@ export default function RegisterScreen() {
         <Typography component='h1' variant='h5'>
           Sign up
         </Typography>
-        {/* {this.state.ifPassWrong ? <p>Sorry, the passwords dont match</p> : null} */}
         <form className={classes.form} noValidate onSubmit={handleOnSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
