@@ -43,14 +43,6 @@ const NavBar = props => {
             <Button color='inherit'>
               <a
                 style={{ textDecoration: 'none', color: 'white' }}
-                href='/user'
-              >
-                User
-              </a>
-            </Button>
-            <Button color='inherit'>
-              <a
-                style={{ textDecoration: 'none', color: 'white' }}
                 href='/api/logout'
               >
                 Logout
