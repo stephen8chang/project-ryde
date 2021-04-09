@@ -21,6 +21,7 @@
   "homepage": "https://github.com/stephen8chang/project-ryde#readme",
   "dependencies": {
     "@material-ui/lab": "^4.0.0-alpha.57",
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
     "concurrently": "^6.0.1",
     "express-session": "^1.17.1",
