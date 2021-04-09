@@ -39,6 +39,20 @@ const useStyles = makeStyles(theme => ({
 const ProjectsScreen = props => {
   const classes = useStyles();
   const [projects, setProjects] = useState([]);
+  const [currProj, setCurrProj] = useState({
+    creator: "",
+    projectName: "",
+    description: "",
+    HW1Amt: 0,
+    HW2Amt: 0,
+    access: false
+  });
+  const [num, setNum] = useState(0)
+  const [hw1Curr, sethw1Curr] = useState(0)
+  const [hw2Curr, sethw2Curr] = useState(0)
+  const [hw1Av, sethw1Av] = useState(0)
+  const [hw2Av, sethw2Av] = useState(0)
+
   const handleOnSubmit = async () => {
     if (name !== '' && description !== '') {
       await axios.post('/api/create', {
@@ -57,8 +71,21 @@ const ProjectsScreen = props => {
       setProjects(projects.data);
     });
   }, [props.auth]);
-  const handleOpenModal = id => {
-    console.log(id);
+  const displayCurrProj = project => {
+    setCurrProj({
+      ...currProj,
+      creator: project.creator,
+      projectName: project.projectName,
+      description: project.description,
+      HW1Amt: project.HW1Amt,
+      HW2Amt: project.HW2Amt,
+      access: project.access,
+      id: project._id
+    })
+
+
+    console.log(currProj);
+    //window.location.reload();
   };
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -147,7 +174,7 @@ const ProjectsScreen = props => {
                           variant='contained'
                           color='primary'
                           label='Open Project'
-                          onClick={() => handleOpenModal(project._id)}
+                          onClick={() => displayCurrProj(project)}
                         />
                       </TableRow>
                     ))}
@@ -155,6 +182,20 @@ const ProjectsScreen = props => {
                 </Table>
               </TableContainer>
             </Paper>
+            <p>Creator: {currProj.creator}, ID: {currProj.id}</p>
+            <div>
+              <button>Return (-1)</button>
+              <button onClick={() => setNum(num + 1)}>Check Out (+1) </button>
+              <p>HWSet1 Checked Out: {num}</p>
+            </div>
+            <div>
+              <button>Return (-1)</button>
+              <button>Check Out (+1)</button>
+              <p>HWSet2 Checked Out: {currProj.HW2Amt}</p>
+            </div>
+            <p>HWSet1 Available: </p>
+            <p>HWSet2 Available: </p>
+            <button>Make Changes</button>
           </Grid>
         </React.Fragment>
       </Grid>
