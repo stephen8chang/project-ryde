@@ -48,17 +48,17 @@ const NavBar = props => {
             <Button color='inherit'>
               <a
                 style={{ textDecoration: 'none', color: 'white' }}
-                href='/dataset'
+                href='/projects'
               >
-                Dataset
+                Projects
               </a>
             </Button>
             <Button color='inherit'>
               <a
                 style={{ textDecoration: 'none', color: 'white' }}
-                href='/projects'
+                href='/dataset'
               >
-                Projects
+                Dataset
               </a>
             </Button>
             <Button color='inherit'>

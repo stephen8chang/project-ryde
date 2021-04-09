@@ -39,6 +39,20 @@ const useStyles = makeStyles(theme => ({
 const ProjectsScreen = props => {
   const classes = useStyles();
   const [projects, setProjects] = useState([]);
+  const [currProj, setCurrProj] = useState({
+    creator: "",
+    projectName: "",
+    description: "",
+    HW1Amt: 0,
+    HW2Amt: 0,
+    access: false
+  });
+  const [num, setNum] = useState(0)
+  const [hw1Curr, sethw1Curr] = useState(0)
+  const [hw2Curr, sethw2Curr] = useState(0)
+  const [hw1Av, sethw1Av] = useState(0)
+  const [hw2Av, sethw2Av] = useState(0)
+
   const handleOnSubmit = async () => {
     if (name !== '' && description !== '') {
       await axios.post('/api/create', {
@@ -57,9 +71,26 @@ const ProjectsScreen = props => {
       setProjects(projects.data);
     });
   }, [props.auth]);
-  const handleOpenModal = id => {
-    console.log(id);
+  const displayCurrProj = project => {
+    setCurrProj({
+      ...currProj,
+      creator: project.creator,
+      projectName: project.projectName,
+      description: project.description,
+      HW1Amt: project.HW1Amt,
+      HW2Amt: project.HW2Amt,
+      access: project.access,
+      id: project._id
+    })
+    console.log(currProj);
+    //window.location.reload();
   };
+  const updateAmounts = (hw1Curr, hw2Curr, hw1Av, hw2Av) => {
+    sethw1Curr(hw1Curr)
+    sethw2Curr(hw2Curr)
+    sethw1Av(hw1Av)
+    sethw2Av(hw2Av)
+  }
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -147,7 +178,7 @@ const ProjectsScreen = props => {
                           variant='contained'
                           color='primary'
                           label='Open Project'
-                          onClick={() => handleOpenModal(project._id)}
+                          onClick={() => displayCurrProj(project)}
                         />
                       </TableRow>
                     ))}
@@ -155,6 +186,20 @@ const ProjectsScreen = props => {
                 </Table>
               </TableContainer>
             </Paper>
+            <p>Creator: {currProj.creator}, ID: {currProj.id}</p>
+            <div>
+              <button onClick={() => updateAmounts(hw1Curr - 1, hw2Curr, hw1Av + 1, hw2Av)}>Return (-1)</button>
+              <button onClick={() => updateAmounts(hw1Curr + 1, hw2Curr, hw1Av - 1, hw2Av)}>Check Out (+1) </button>
+              <p>HWSet1 Checked Out: {hw1Curr}</p>
+            </div>
+            <div>
+              <button onClick={() => updateAmounts(hw1Curr, hw2Curr - 1, hw1Av, hw2Av + 1)}>Return (-1)</button>
+              <button onClick={() => updateAmounts(hw1Curr, hw2Curr + 1, hw1Av, hw2Av - 1)}>Check Out (+1)</button>
+              <p>HWSet2 Checked Out: {hw2Curr}</p>
+            </div>
+            <p>HWSet1 Available: {hw1Av}</p>
+            <p>HWSet2 Available: {hw2Av}</p>
+            <button>Make Changes</button>
           </Grid>
         </React.Fragment>
       </Grid>
