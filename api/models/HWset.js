@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const HWsetSchema = new Schema({
-  name: String,
-  available: Number
+  HWSet1: Number,
+  HWSet2: Number
 });
 
 const HWset = mongoose.model('hwset', HWsetSchema);
