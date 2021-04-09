@@ -82,11 +82,15 @@ const ProjectsScreen = props => {
       access: project.access,
       id: project._id
     })
-
-
     console.log(currProj);
     //window.location.reload();
   };
+  const updateAmounts = (hw1Curr, hw2Curr, hw1Av, hw2Av) => {
+    sethw1Curr(hw1Curr)
+    sethw2Curr(hw2Curr)
+    sethw1Av(hw1Av)
+    sethw2Av(hw2Av)
+  }
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -184,17 +188,17 @@ const ProjectsScreen = props => {
             </Paper>
             <p>Creator: {currProj.creator}, ID: {currProj.id}</p>
             <div>
-              <button>Return (-1)</button>
-              <button onClick={() => setNum(num + 1)}>Check Out (+1) </button>
-              <p>HWSet1 Checked Out: {num}</p>
+              <button onClick={() => updateAmounts(hw1Curr - 1, hw2Curr, hw1Av + 1, hw2Av)}>Return (-1)</button>
+              <button onClick={() => updateAmounts(hw1Curr + 1, hw2Curr, hw1Av - 1, hw2Av)}>Check Out (+1) </button>
+              <p>HWSet1 Checked Out: {hw1Curr}</p>
             </div>
             <div>
-              <button>Return (-1)</button>
-              <button>Check Out (+1)</button>
-              <p>HWSet2 Checked Out: {currProj.HW2Amt}</p>
+              <button onClick={() => updateAmounts(hw1Curr, hw2Curr - 1, hw1Av, hw2Av + 1)}>Return (-1)</button>
+              <button onClick={() => updateAmounts(hw1Curr, hw2Curr + 1, hw1Av, hw2Av - 1)}>Check Out (+1)</button>
+              <p>HWSet2 Checked Out: {hw2Curr}</p>
             </div>
-            <p>HWSet1 Available: </p>
-            <p>HWSet2 Available: </p>
+            <p>HWSet1 Available: {hw1Av}</p>
+            <p>HWSet2 Available: {hw2Av}</p>
             <button>Make Changes</button>
           </Grid>
         </React.Fragment>
