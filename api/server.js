@@ -12,7 +12,6 @@ mongoose.connect(
 );
 dotenv.config();
 const app = express();
-//app.use(express.static(path.resolve(__dirname, '../frontend/build')));
 app.use(
   session({
     secret: 'lasdjfh92394oasdhfuyasdf',
