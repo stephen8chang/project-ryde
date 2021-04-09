@@ -19,11 +19,7 @@ class App extends Component {
         <NavBar />
         <Router>
           <Switch>
-            <Route exact path='/' component={DashboardScreen} />
-            <Route path='/register' component={RegisterScreen} />
-            <Route path='/login' component={LoginScreen} />
-            <Route path='/dataset' component={DatasetScreen} />
-            <Route path='/projects' component={ProjectsScreen} />
+            
           </Switch>
         </Router>
       </div>
