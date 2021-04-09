@@ -40,18 +40,18 @@ const ProjectsScreen = props => {
   const classes = useStyles();
   const [projects, setProjects] = useState([]);
   const [currProj, setCurrProj] = useState({
-    creator: "",
-    projectName: "",
-    description: "",
+    creator: '',
+    projectName: '',
+    description: '',
     HW1Amt: 0,
     HW2Amt: 0,
     access: false
   });
-  const [num, setNum] = useState(0)
-  const [hw1Curr, sethw1Curr] = useState(0)
-  const [hw2Curr, sethw2Curr] = useState(0)
-  const [hw1Av, sethw1Av] = useState(0)
-  const [hw2Av, sethw2Av] = useState(0)
+  const [num, setNum] = useState(0);
+  const [hw1Curr, sethw1Curr] = useState(0);
+  const [hw2Curr, sethw2Curr] = useState(0);
+  const [hw1Av, sethw1Av] = useState(0);
+  const [hw2Av, sethw2Av] = useState(0);
 
   const handleOnSubmit = async () => {
     if (name !== '' && description !== '') {
@@ -70,6 +70,14 @@ const ProjectsScreen = props => {
     axios.get('/api/projects').then(projects => {
       setProjects(projects.data);
     });
+    let numberHW1 = axios
+      .get('/api/hardware/HW1Set')
+      .then(data => console.log(data));
+    let numberHW2 = axios
+      .get('/api/hardware/HW2Set')
+      .then(data => console.log(data));
+    // sethw1Av(numberHW1)
+    // sethw2Av(numberHW2)
   }, [props.auth]);
   const displayCurrProj = project => {
     setCurrProj({
@@ -81,20 +89,21 @@ const ProjectsScreen = props => {
       HW2Amt: project.HW2Amt,
       access: project.access,
       id: project._id
-    })
-    console.log(currProj);
+    });
+    // console.log(currProj);
     //window.location.reload();
   };
   const updateAmounts = (hw1Curr, hw2Curr, hw1Av, hw2Av) => {
-    sethw1Curr(hw1Curr)
-    sethw2Curr(hw2Curr)
-    sethw1Av(hw1Av)
-    sethw2Av(hw2Av)
-  }
+    sethw1Curr(hw1Curr);
+    sethw2Curr(hw2Curr);
+    sethw1Av(hw1Av);
+    sethw2Av(hw2Av);
+  };
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const handleMakeChanges = () => {};
   return (
     <Grid container spacing={1}>
       <Grid container item xs={12} spacing={3}>
@@ -177,29 +186,56 @@ const ProjectsScreen = props => {
                         <Button
                           variant='contained'
                           color='primary'
-                          label='Open Project'
                           onClick={() => displayCurrProj(project)}
-                        />
+                        >
+                          Open
+                        </Button>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </TableContainer>
             </Paper>
-            <p>Creator: {currProj.creator}, ID: {currProj.id}</p>
+            <p>
+              Creator: {currProj.creator}, ID: {currProj.id}
+            </p>
             <div>
-              <button onClick={() => updateAmounts(hw1Curr - 1, hw2Curr, hw1Av + 1, hw2Av)}>Return (-1)</button>
-              <button onClick={() => updateAmounts(hw1Curr + 1, hw2Curr, hw1Av - 1, hw2Av)}>Check Out (+1) </button>
+              <button
+                onClick={() =>
+                  updateAmounts(hw1Curr - 1, hw2Curr, hw1Av + 1, hw2Av)
+                }
+              >
+                Return (-1)
+              </button>
+              <button
+                onClick={() =>
+                  updateAmounts(hw1Curr + 1, hw2Curr, hw1Av - 1, hw2Av)
+                }
+              >
+                Check Out (+1){' '}
+              </button>
               <p>HWSet1 Checked Out: {hw1Curr}</p>
             </div>
             <div>
-              <button onClick={() => updateAmounts(hw1Curr, hw2Curr - 1, hw1Av, hw2Av + 1)}>Return (-1)</button>
-              <button onClick={() => updateAmounts(hw1Curr, hw2Curr + 1, hw1Av, hw2Av - 1)}>Check Out (+1)</button>
+              <button
+                onClick={() =>
+                  updateAmounts(hw1Curr, hw2Curr - 1, hw1Av, hw2Av + 1)
+                }
+              >
+                Return (-1)
+              </button>
+              <button
+                onClick={() =>
+                  updateAmounts(hw1Curr, hw2Curr + 1, hw1Av, hw2Av - 1)
+                }
+              >
+                Check Out (+1)
+              </button>
               <p>HWSet2 Checked Out: {hw2Curr}</p>
             </div>
             <p>HWSet1 Available: {hw1Av}</p>
             <p>HWSet2 Available: {hw2Av}</p>
-            <button>Make Changes</button>
+            <button onClick={handleMakeChanges}>Make Changes</button>
           </Grid>
         </React.Fragment>
       </Grid>

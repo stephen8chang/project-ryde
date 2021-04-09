@@ -17,4 +17,17 @@ module.exports = app => {
     const projects = await Project.find({ access: true });
     res.json(projects);
   });
+  //Check in and out HWSets for project
+  app.post('/api/projects', async (req, res) => {
+    const { id, increment, number, hardwareName } = req.body;
+    const value = increment ? number : -number;
+    if (hardwareName === 'HW1Amt') {
+      await Project.updateOne({ _id: id }, { $inc: { HW1Amt: value } });
+    }
+    if (hardwareName === 'HW2Amt') {
+      await Project.updateOne({ _id: id }, { $inc: { HW2Amt: value } });
+    }
+
+    res.send({ message: 'success' });
+  });
 };

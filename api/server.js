@@ -3,7 +3,6 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const session = require('express-session');
-
 mongoose.connect(
   'mongodb+srv://normanwang1234:2813959637Hi+@project-ryde.fnx34.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
   {
@@ -43,6 +42,7 @@ app.get('/', (req, res) => {
 });
 require('./routes/authRoutes')(app);
 require('./routes/projectRoutes')(app);
+require('./routes/hardwareRoutes')(app);
 
 const PORT = process.env.PORT || 9000;
 app.listen(PORT, console.log(`Server running on ${PORT}`));
