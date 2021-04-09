@@ -67,6 +67,8 @@ export default function RegisterScreen() {
       } else {
         setErrorMessage('');
       }
+    } else {
+      setErrorMessage('');
     }
   }, [confirmPassword, password]);
   return (
