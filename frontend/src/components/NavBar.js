@@ -41,11 +41,6 @@ const NavBar = props => {
         {props.auth ? (
           <>
             <Button color='inherit'>
-              <a style={{ textDecoration: 'none', color: 'white' }} href='/'>
-                Home
-              </a>
-            </Button>
-            <Button color='inherit'>
               <a
                 style={{ textDecoration: 'none', color: 'white' }}
                 href='/projects'

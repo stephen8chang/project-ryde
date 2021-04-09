@@ -17,4 +17,11 @@ module.exports = app => {
     const projects = await Project.find({ access: true });
     res.json(projects);
   });
+  //Check in and out HWSets for project
+  app.post('/api/projects/count', async (req, res) => {
+    const { id, hw1Curr, hw2Curr } = req.body;
+    await Project.updateOne({ _id: id }, { $set: { HW1Amt: hw1Curr } });
+    await Project.updateOne({ _id: id }, { $set: { HW2Amt: hw2Curr } });
+    res.send({ message: 'success' });
+  });
 };
