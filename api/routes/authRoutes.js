@@ -44,8 +44,4 @@ module.exports = app => {
     req.session.destroy(err => {});
     res.redirect('/');
   });
-
-  app.get('/api/getUserInfo', async (req, res) => {
-    
-  })
 };
