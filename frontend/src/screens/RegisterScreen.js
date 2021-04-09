@@ -1,16 +1,19 @@
-import React, {useState} from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
+import React, { useState, useEffect } from 'react';
+import { Alert } from '@material-ui/lab';
+import {
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  Link,
+  Grid,
+  Typography,
+  Container
+} from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import axios from 'axios'
-import BlockIcon from '@material-ui/icons/Block';
+import axios from 'axios';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -32,27 +35,40 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-
 export default function RegisterScreen() {
   const classes = useStyles();
+  const history = useHistory();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isPassWrong, setIsPassWrong] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('');
+  const [matchingPassword, setMatchingPassword] = useState(true);
   const handleOnSubmit = async () => {
-    if(confirmPassword === password)
-      await axios.post('/api/register', {firstName, lastName, email, password})
-  }
-  const checkConfirmPass= val => {
-    if(password !== val){
-      setIsPassWrong(true)
-    } else{
-      setConfirmPassword(val)
-      setIsPassWrong(false)
+    let { data } = await axios.post('/api/register', {
+      firstName,
+      lastName,
+      email,
+      password
+    });
+    if (data.redirectUrl) {
+      history.push(data.redirectUrl);
+    } else {
+      if (data.message) {
+        setErrorMessage(data.message);
+      }
     }
-  }
+  };
+  useEffect(() => {
+    if (password !== '' && confirmPassword !== '') {
+      if (password !== confirmPassword) {
+        setErrorMessage('Passwords do not match');
+      } else {
+        setErrorMessage('');
+      }
+    }
+  }, [confirmPassword, password]);
   return (
     <Container component='main' maxWidth='xs'>
       <CssBaseline />
@@ -63,99 +79,95 @@ export default function RegisterScreen() {
         <Typography component='h1' variant='h5'>
           Sign up
         </Typography>
-        <form className={classes.form} noValidate onSubmit={handleOnSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                autoComplete='fname'
-                name='firstName'
-                variant='outlined'
-                required
-                fullWidth
-                id='firstName'
-                label='First Name'
-                autoFocus
-                onChange={e => setFirstName(e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                variant='outlined'
-                required
-                fullWidth
-                id='lastName'
-                label='Last Name'
-                name='lastName'
-                autoComplete='lname'
-                onChange={e => setLastName(e.target.value)}
-
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant='outlined'
-                required
-                fullWidth
-                id='email'
-                label='Email Address'
-                name='email'
-                autoComplete='email'
-                onChange={e => setEmail(e.target.value)}
-
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant='outlined'
-                required
-                fullWidth
-                name='password'
-                label='Password'
-                type='password'
-                id='password'
-                autoComplete='current-password'
-                onChange={e => setPassword(e.target.value)}
-
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant='outlined'
-                required
-                fullWidth
-                name='confirmPassword'
-                label='Confirm Password'
-                type='password'
-                id='confirmPassword'
-                onChange={e => checkConfirmPass(e.target.value)}
-              />
-              <Grid item xs={12}>
-              {isPassWrong ? 
-              (<React.Fragment>
-              <a>Sorry, the passwords dont match </a>
-              <BlockIcon></BlockIcon>
-              </React.Fragment>)
-              : null}
-             </Grid>
-            </Grid>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              autoComplete='fname'
+              name='firstName'
+              variant='outlined'
+              required
+              fullWidth
+              id='firstName'
+              label='First Name'
+              autoFocus
+              onChange={e => setFirstName(e.target.value)}
+            />
           </Grid>
-          <Button
-            type='submit'
-            fullWidth
-            variant='contained'
-            color='primary'
+          <Grid item xs={12} sm={6}>
+            <TextField
+              variant='outlined'
+              required
+              fullWidth
+              id='lastName'
+              label='Last Name'
+              name='lastName'
+              autoComplete='lname'
+              onChange={e => setLastName(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              variant='outlined'
+              required
+              fullWidth
+              id='email'
+              label='Email Address'
+              name='email'
+              autoComplete='email'
+              onChange={e => setEmail(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              variant='outlined'
+              required
+              fullWidth
+              name='password'
+              label='Password'
+              type='password'
+              id='password'
+              autoComplete='current-password'
+              onChange={e => setPassword(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              variant='outlined'
+              required
+              fullWidth
+              name='confirmPassword'
+              label='Confirm Password'
+              type='password'
+              id='confirmPassword'
+              onChange={e => setConfirmPassword(e.target.value)}
+            />
+          </Grid>
+        </Grid>
+        <Button
+          type='submit'
+          fullWidth
+          variant='contained'
+          color='primary'
+          className={classes.submit}
+          onClick={handleOnSubmit}
+        >
+          Sign Up
+        </Button>
+        {errorMessage ? (
+          <Alert
             className={classes.submit}
+            style={{
+              width: '100%',
+              justifyContent: 'center'
+            }}
+            severity='error'
           >
-            Sign Up
-          </Button>
-          <Grid container justify='flex-end'>
-            <Grid item>
-              <Link href='/login' variant='body2'>
-                Already have an account?
-              </Link>
-            </Grid>
-          </Grid>
-        </form>
+            {errorMessage}
+          </Alert>
+        ) : null}
+        <Link href='/login' variant='body2'>
+          Already have an account?
+        </Link>
       </div>
     </Container>
   );
