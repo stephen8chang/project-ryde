@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const path = require('path');
 
 mongoose.connect(
   'mongodb+srv://normanwang1234:2813959637Hi+@project-ryde.fnx34.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
@@ -13,6 +14,7 @@ mongoose.connect(
 );
 dotenv.config();
 const app = express();
+app.use(express.static(path.resolve(__dirname, '../frontend/build')));
 app.use(
   session({
     secret: 'lasdjfh92394oasdhfuyasdf',
