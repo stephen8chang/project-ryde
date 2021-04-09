@@ -47,7 +47,9 @@ const ProjectsScreen = props => {
     HW2Amt: 0,
     access: false
   });
-  const [num, setNum] = useState(0);
+  const [hardware1, setHardware1] = useState(0);
+  const [hardware2, setHardware2] = useState(0);
+
   const [hw1Curr, sethw1Curr] = useState(0);
   const [hw2Curr, sethw2Curr] = useState(0);
   const [hw1Av, sethw1Av] = useState(0);
@@ -70,15 +72,15 @@ const ProjectsScreen = props => {
     axios.get('/api/projects').then(projects => {
       setProjects(projects.data);
     });
-    let numberHW1 = axios
-      .get('/api/hardware/HW1Set')
-      .then(data => console.log(data));
-    let numberHW2 = axios
-      .get('/api/hardware/HW2Set')
-      .then(data => console.log(data));
-    // sethw1Av(numberHW1)
-    // sethw2Av(numberHW2)
-  }, [props.auth]);
+    axios.get('/api/hardware/1').then(hw => sethw1Av(hw.data.available));
+    axios.get('/api/hardware/2').then(hw => sethw2Av(hw.data.available));
+    projects.forEach(project => {
+      if (project._id === currProj.id) {
+        sethw1Curr(project.HW1Amt);
+        sethw2Curr(project.HW2Amt);
+      }
+    });
+  }, [props.auth, currProj]);
   const displayCurrProj = project => {
     setCurrProj({
       ...currProj,
@@ -90,8 +92,6 @@ const ProjectsScreen = props => {
       access: project.access,
       id: project._id
     });
-    // console.log(currProj);
-    //window.location.reload();
   };
   const updateAmounts = (hw1Curr, hw2Curr, hw1Av, hw2Av) => {
     sethw1Curr(hw1Curr);
@@ -103,7 +103,15 @@ const ProjectsScreen = props => {
   const [description, setDescription] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const handleMakeChanges = () => {};
+  const handleMakeChanges = () => {
+    axios.post('/api/projects/count', { id: currProj.id, hw1Curr, hw2Curr });
+    axios.post('/api/hardware/count', {
+      hardware1,
+      hardware2
+    });
+    setHardware1(0);
+    setHardware2(0);
+  };
   return (
     <Grid container spacing={1}>
       <Grid container item xs={12} spacing={3}>
@@ -196,46 +204,57 @@ const ProjectsScreen = props => {
                 </Table>
               </TableContainer>
             </Paper>
-            <p>
-              Creator: {currProj.creator}, ID: {currProj.id}
-            </p>
-            <div>
-              <button
-                onClick={() =>
-                  updateAmounts(hw1Curr - 1, hw2Curr, hw1Av + 1, hw2Av)
-                }
-              >
-                Return (-1)
-              </button>
-              <button
-                onClick={() =>
-                  updateAmounts(hw1Curr + 1, hw2Curr, hw1Av - 1, hw2Av)
-                }
-              >
-                Check Out (+1){' '}
-              </button>
-              <p>HWSet1 Checked Out: {hw1Curr}</p>
-            </div>
-            <div>
-              <button
-                onClick={() =>
-                  updateAmounts(hw1Curr, hw2Curr - 1, hw1Av, hw2Av + 1)
-                }
-              >
-                Return (-1)
-              </button>
-              <button
-                onClick={() =>
-                  updateAmounts(hw1Curr, hw2Curr + 1, hw1Av, hw2Av - 1)
-                }
-              >
-                Check Out (+1)
-              </button>
-              <p>HWSet2 Checked Out: {hw2Curr}</p>
-            </div>
-            <p>HWSet1 Available: {hw1Av}</p>
-            <p>HWSet2 Available: {hw2Av}</p>
-            <button onClick={handleMakeChanges}>Make Changes</button>
+            {currProj.projectName ? (
+              <div>
+                <p>
+                  Creator: {currProj.creator}, ID: {currProj.id}
+                </p>
+                <div>
+                  <button
+                    onClick={() => {
+                      setHardware1(hardware1 => hardware1 + 1);
+                      updateAmounts(hw1Curr - 1, hw2Curr, hw1Av + 1, hw2Av);
+                    }}
+                  >
+                    Return (-1)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setHardware1(hardware1 => hardware1 - 1);
+
+                      updateAmounts(hw1Curr + 1, hw2Curr, hw1Av - 1, hw2Av);
+                    }}
+                  >
+                    Check Out (+1){' '}
+                  </button>
+                  <p>HWSet1 Checked Out: {hw1Curr}</p>
+                </div>
+                <div>
+                  <button
+                    onClick={() => {
+                      setHardware2(hardware2 => hardware2 + 1);
+
+                      updateAmounts(hw1Curr, hw2Curr - 1, hw1Av, hw2Av + 1);
+                    }}
+                  >
+                    Return (-1)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setHardware2(hardware2 => hardware2 - 1);
+
+                      updateAmounts(hw1Curr, hw2Curr + 1, hw1Av, hw2Av - 1);
+                    }}
+                  >
+                    Check Out (+1)
+                  </button>
+                  <p>HWSet2 Checked Out: {hw2Curr}</p>
+                </div>
+                <p>HWSet1 Available: {hw1Av}</p>
+                <p>HWSet2 Available: {hw2Av}</p>
+                <button onClick={handleMakeChanges}>Make Changes</button>
+              </div>
+            ) : null}
           </Grid>
         </React.Fragment>
       </Grid>
