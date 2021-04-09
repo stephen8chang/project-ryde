@@ -1,5 +1,16 @@
-import React, { useState } from 'react';
-import { Button, Grid, Paper, TextField } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import {
+  Button,
+  Grid,
+  Paper,
+  TextField,
+  TableHead,
+  TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer
+} from '@material-ui/core';
 import AddToPhotosIcon from '@material-ui/icons/AddToPhotos';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
@@ -27,18 +38,27 @@ const useStyles = makeStyles(theme => ({
 }));
 const ProjectsScreen = props => {
   const classes = useStyles();
+  const [projects, setProjects] = useState([]);
   const handleOnSubmit = async () => {
-    console.log(name, description, props.auth.email);
     if (name !== '' && description !== '') {
       await axios.post('/api/create', {
         projectName: name,
         description,
         creator: props.auth.email
       });
+      window.location.reload();
       setSuccessMessage('Project created!');
     } else {
       setErrorMessage('Please fill out all fields.');
     }
+  };
+  useEffect(() => {
+    axios.get('/api/projects').then(projects => {
+      setProjects(projects.data);
+    });
+  }, [props.auth]);
+  const handleOpenModal = id => {
+    console.log(id);
   };
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -101,16 +121,39 @@ const ProjectsScreen = props => {
           </Grid>
           <Grid item xs={8}>
             <Paper className={classes.paper}>
-              <div>
-                <table>
-                  <tr>
-                    <th>Name     </th>
-                    <th>ID     </th>
-                    <th>Description     </th>
-                    <th>Link to Open</th>
-                  </tr>
-                </table>
-              </div>
+              <TableContainer component={Paper}>
+                <Table className={classes.table} aria-label='simple table'>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align='right'>Project Name</TableCell>
+                      <TableCell align='right'>Project Description</TableCell>
+                      <TableCell align='right'>Creator</TableCell>
+                      <TableCell align='right'>ID</TableCell>
+                      <TableCell align='right'>Link</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {projects.map(project => (
+                      <TableRow key={project.projectName}>
+                        <TableCell component='th' scope='row'>
+                          {project.projectName}
+                        </TableCell>
+                        <TableCell align='right'>
+                          {project.description}
+                        </TableCell>
+                        <TableCell align='right'>{project.creator}</TableCell>
+                        <TableCell align='right'>{project._id}</TableCell>
+                        <Button
+                          variant='contained'
+                          color='primary'
+                          label='Open Project'
+                          onClick={() => handleOpenModal(project._id)}
+                        />
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Paper>
           </Grid>
         </React.Fragment>
