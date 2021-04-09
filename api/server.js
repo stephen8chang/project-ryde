@@ -27,19 +27,6 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 app.use(express.json());
-app.get('/', (req, res) => {
-  if (req.session.loggedIn) {
-    return res.status(200).json({
-      success: true,
-      redirectUrl: '/'
-    });
-  } else {
-    return res.status(200).json({
-      success: true,
-      redirectUrl: '/login'
-    });
-  }
-});
 require('./routes/authRoutes')(app);
 require('./routes/projectRoutes')(app);
 require('./routes/hardwareRoutes')(app);

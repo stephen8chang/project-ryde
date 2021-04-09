@@ -9,13 +9,15 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer
+  TableContainer,
+  Snackbar
 } from '@material-ui/core';
 import AddToPhotosIcon from '@material-ui/icons/AddToPhotos';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
-import { connect } from 'react-redux';
 import { Alert } from '@material-ui/lab';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -81,6 +83,7 @@ const ProjectsScreen = props => {
       }
     });
   }, [props.auth, currProj]);
+
   const displayCurrProj = project => {
     setCurrProj({
       ...currProj,
@@ -103,17 +106,34 @@ const ProjectsScreen = props => {
   const [description, setDescription] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorSnackbar, setErrorSnackbar] = useState('');
+  const [successSnackbar, setSuccessSnackbar] = useState('');
   const handleMakeChanges = () => {
-    axios.post('/api/projects/count', { id: currProj.id, hw1Curr, hw2Curr });
-    axios.post('/api/hardware/count', {
-      hardware1,
-      hardware2
-    });
-    setHardware1(0);
-    setHardware2(0);
+    if (hw1Curr < 0 || hw2Curr < 0) {
+      setErrorSnackbar('You returned too many sets');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } else if (hw1Av < 0 || hw2Av < 0) {
+      setErrorSnackbar('You checked out too many sets');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } else {
+      axios.post('/api/projects/count', { id: currProj.id, hw1Curr, hw2Curr });
+      axios.post('/api/hardware/count', {
+        hardware1,
+        hardware2
+      });
+      setHardware1(0);
+      setHardware2(0);
+      setSuccessSnackbar('Submitted successfully!');
+    }
   };
   return (
     <Grid container spacing={1}>
+      {!props.auth ? <Redirect to='/login' /> : <Redirect to='/projects' />}
+
       <Grid container item xs={12} spacing={3}>
         <React.Fragment>
           <Grid item xs={4}>
@@ -258,6 +278,32 @@ const ProjectsScreen = props => {
           </Grid>
         </React.Fragment>
       </Grid>
+      {successSnackbar ? (
+        <Snackbar
+          open
+          autoHideDuration={6000}
+          onClose={() => {
+            setSuccessSnackbar('');
+          }}
+        >
+          <Alert autoHideDuration={100} severity='success'>
+            {successSnackbar}
+          </Alert>
+        </Snackbar>
+      ) : null}
+      {errorSnackbar ? (
+        <Snackbar
+          open
+          autoHideDuration={6000}
+          onClose={() => {
+            setErrorSnackbar('');
+          }}
+        >
+          <Alert autoHideDuration={100} severity='error'>
+            {errorSnackbar}
+          </Alert>
+        </Snackbar>
+      ) : null}
     </Grid>
   );
 };
