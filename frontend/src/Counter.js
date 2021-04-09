@@ -19,6 +19,7 @@ export class Counter extends Component {
             <div key={group._id}>
                 <h1>{group.name}</h1>
                 <p>{group.available}</p> 
+                <p>Available HW Sets</p> 
             </div>
         ));
 
