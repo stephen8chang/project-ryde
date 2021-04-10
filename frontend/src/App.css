@@ -62,4 +62,11 @@ Latest commit fd0bc97 on Jan 3
   color: #61dafb;
 }
 
-
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
