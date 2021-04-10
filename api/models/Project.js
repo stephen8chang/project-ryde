@@ -10,3 +10,5 @@ const projectSchema = new Schema({
   access: Boolean
 });
 
+const Project = mongoose.model('projects', projectSchema);
+module.exports = Project;
