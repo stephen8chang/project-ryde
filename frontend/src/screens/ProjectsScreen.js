@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  AppBar,
   Button,
   Grid,
   Paper,
@@ -10,7 +11,11 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  Snackbar
+  Typography,
+  Snackbar,
+  Dialog,
+  DialogActions,
+  DialogContent
 } from '@material-ui/core';
 import AddToPhotosIcon from '@material-ui/icons/AddToPhotos';
 import { makeStyles } from '@material-ui/core/styles';
@@ -36,6 +41,12 @@ const useStyles = makeStyles(theme => ({
   },
   submit: {
     margin: theme.spacing(3, 0, 2)
+  },
+  menuButton: {
+    marginRight: theme.spacing(2)
+  },
+  title: {
+    flexGrow: 1
   }
 }));
 const ProjectsScreen = props => {
@@ -49,6 +60,7 @@ const ProjectsScreen = props => {
     HW2Amt: 0,
     access: false
   });
+  const [openModal, setOpenModal] = useState(false);
   const [hardware1, setHardware1] = useState(0);
   const [hardware2, setHardware2] = useState(0);
 
@@ -103,6 +115,9 @@ const ProjectsScreen = props => {
     sethw2Av(hw2Av);
   };
   const [name, setName] = useState('');
+  const [modalName, setModalName] = useState('');
+  const [modalCreator, setModalCreator] = useState('');
+  const [modalDescription, setModalDescription] = useState('');
   const [description, setDescription] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -139,33 +154,36 @@ const ProjectsScreen = props => {
           <Grid item xs={4}>
             <Paper className={classes.paper}>
               <TextField
-                variant='outlined'
+                variant='filled'
                 margin='normal'
                 required
-                fullWidth
                 id='Project Name'
                 label='Project Name'
                 name='Project Name'
+                style={{ width: '75%' }}
                 onChange={e => setName(e.target.value)}
               />
               <TextField
-                variant='outlined'
+                variant='filled'
                 margin='normal'
                 required
-                fullWidth
                 id='Project Description'
                 label='Project Description'
                 name='Project Description'
+                style={{ width: '75%' }}
                 onChange={e => setDescription(e.target.value)}
               />
-              <Button onClick={handleOnSubmit}>
+              <Button
+                onClick={handleOnSubmit}
+                style={{ paddingTop: 15, paddingBottom: 15 }}
+              >
                 Create New Project <AddToPhotosIcon />
               </Button>
               {errorMessage ? (
                 <Alert
                   className={classes.submit}
                   style={{
-                    width: '100%',
+                    width: '70%',
                     justifyContent: 'center'
                   }}
                   severity='error'
@@ -193,31 +211,39 @@ const ProjectsScreen = props => {
                 <Table className={classes.table} aria-label='simple table'>
                   <TableHead>
                     <TableRow>
-                      <TableCell align='right'>Project Name</TableCell>
-                      <TableCell align='right'>Project Description</TableCell>
-                      <TableCell align='right'>Creator</TableCell>
-                      <TableCell align='right'>ID</TableCell>
-                      <TableCell align='right'>Link</TableCell>
+                      <TableCell align='center'>Project Name</TableCell>
+                      <TableCell align='center'>Project Description</TableCell>
+                      <TableCell align='center'>Creator</TableCell>
+                      <TableCell align='center'>ID</TableCell>
+                      <TableCell align='center'>Link</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {projects.map(project => (
                       <TableRow key={project.projectName}>
-                        <TableCell component='th' scope='row'>
+                        <TableCell component='th' scope='row' align='center'>
                           {project.projectName}
                         </TableCell>
-                        <TableCell align='right'>
+                        <TableCell align='center'>
                           {project.description}
                         </TableCell>
-                        <TableCell align='right'>{project.creator}</TableCell>
-                        <TableCell align='right'>{project._id}</TableCell>
-                        <Button
-                          variant='contained'
-                          color='primary'
-                          onClick={() => displayCurrProj(project)}
-                        >
-                          Open
-                        </Button>
+                        <TableCell align='center'>{project.creator}</TableCell>
+                        <TableCell align='center'>{project._id}</TableCell>
+                        <TableCell align='center'>
+                          <Button
+                            variant='contained'
+                            color='primary'
+                            onClick={() => {
+                              displayCurrProj(project);
+                              setOpenModal(true);
+                              setModalName(project.projectName);
+                              setModalCreator(project.creator);
+                              setModalDescription(project.description);
+                            }}
+                          >
+                            Open
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -303,6 +329,39 @@ const ProjectsScreen = props => {
             {errorSnackbar}
           </Alert>
         </Snackbar>
+      ) : null}
+      {openModal ? (
+        <Dialog
+          maxWidth='md'
+          fullWidth
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          aria-labelledby='form-dialog-title'
+        >
+          <AppBar
+            position='static'
+            style={{
+              paddingTop: '1rem',
+              paddingBottom: '1rem',
+              alignItems: 'center'
+            }}
+          >
+            <Typography align='center'>
+              {modalName} - {modalCreator}
+            </Typography>
+          </AppBar>
+          <DialogContent>
+            <Typography align='center'>{modalDescription}</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenModal(false)} color='primary'>
+              Cancel
+            </Button>
+            <Button onClick={() => setOpenModal(false)} color='primary'>
+              Make Changes
+            </Button>
+          </DialogActions>
+        </Dialog>
       ) : null}
     </Grid>
   );
