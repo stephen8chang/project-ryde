@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Grid, Paper, TextField } from '@material-ui/core';
 import AddToPhotosIcon from '@material-ui/icons/AddToPhotos';
 import { Alert } from '@material-ui/lab';
@@ -24,11 +24,17 @@ const CreateProject = props => {
   const [description, setDescription] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [hardwareSets, setHardwareSets] = useState([]);
+  useEffect(async () => {
+    const res = await axios.get('/api/hardware/all');
+    setHardwareSets(res.data);
+  }, [props.auth]);
   const handleOnSubmit = async () => {
     if (name !== '' && description !== '') {
       await axios.post('/api/create', {
         projectName: name,
         description,
+        hardwareSets,
         creator: props.auth.email
       });
       window.location.reload();

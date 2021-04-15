@@ -30,15 +30,9 @@ require('./routes/authRoutes')(app);
 require('./routes/projectRoutes')(app);
 require('./routes/hardwareRoutes')(app);
 path.resolve();
-console.log(__dirname);
-// if (process.env.NODE_ENV === 'production') {
-console.log(__dirname);
-app.use(express.static(path.join(__dirname, '../frontend/build')));
-app.get('*', (req, res) =>
-  res.sendFile(path.resolve(__dirname, '../frontend', 'build', 'index.html'))
-);
-// } else {
-//   app.use(morgan('dev'));
-// }
+// app.use(express.static(path.join(__dirname, '../frontend/build')));
+// app.get('*', (req, res) =>
+//   res.sendFile(path.resolve(__dirname, '../frontend', 'build', 'index.html'))
+// );
 const PORT = process.env.PORT || 9000;
 app.listen(PORT, console.log(`Server running on ${PORT}`));

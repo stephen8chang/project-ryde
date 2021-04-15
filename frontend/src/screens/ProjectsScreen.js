@@ -9,7 +9,6 @@ import {
   DialogActions,
   DialogContent
 } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 import { Alert } from '@material-ui/lab';
 import { connect } from 'react-redux';
@@ -17,48 +16,28 @@ import { Redirect } from 'react-router';
 import CreateProject from '../components/CreateProject';
 import ProjectTable from '../components/ProjectTable';
 
-const useStyles = makeStyles(theme => ({
-  paper: {
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center'
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main
-  },
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(3)
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2)
-  },
-  menuButton: {
-    marginRight: theme.spacing(2)
-  },
-  title: {
-    flexGrow: 1
-  }
-}));
 const ProjectsScreen = props => {
-  const classes = useStyles();
   const [projects, setProjects] = useState([]);
   const [openedProject, setOpenedProject] = useState({});
+  const [openedProjectHardware, setOpenedProjectHardware] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [errorSnackbar, setErrorSnackbar] = useState('');
   const [successSnackbar, setSuccessSnackbar] = useState('');
   const onOpenProject = project => {
     setOpenModal(true);
     setOpenedProject(project);
+    setOpenedProjectHardware(project.hardwareSets);
+    let hardwareArray = project.hardwareSets.map(async id => {
+      const hwObject = await axios.get('/api/hardware/' + id);
+      return hwObject.data[0];
+    });
+    Promise.all(hardwareArray).then(res => console.log(res));
   };
-  useEffect(() => {
-    axios.get('/api/projects').then(projects => {
+  useEffect(async () => {
+    await axios.get('/api/projects/all').then(projects => {
       setProjects(projects.data);
     });
   }, [props.auth, projects]);
-
   return (
     <Grid container spacing={1}>
       {!props.auth ? <Redirect to='/login' /> : <Redirect to='/projects' />}
