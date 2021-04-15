@@ -35,6 +35,15 @@ const ProjectTable = ({ projects, onOpenProject, auth }) => {
       setSnackbarOpen(true);
     });
   };
+  const handleButtonDisable = ({ creator }) => {
+    if (auth && auth.admin) {
+      return false;
+    } else if (creator === auth.email) {
+      return false;
+    } else {
+      return true;
+    }
+  };
   return (
     <Paper className={classes.paper}>
       <Typography variant='h4'>Projects</Typography>
@@ -47,9 +56,7 @@ const ProjectTable = ({ projects, onOpenProject, auth }) => {
               <TableCell align='center'>Creator</TableCell>
               <TableCell align='center'>ID</TableCell>
               <TableCell align='center'>Link</TableCell>
-              {auth && auth.admin && (
-                <TableCell align='center'>Delete</TableCell>
-              )}
+              <TableCell align='center'>Delete</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -70,19 +77,18 @@ const ProjectTable = ({ projects, onOpenProject, auth }) => {
                     Open
                   </Button>
                 </TableCell>
-                {auth && auth.admin && (
-                  <TableCell align='center'>
-                    <Button
-                      variant='contained'
-                      color='secondary'
-                      className={classes.button}
-                      startIcon={<DeleteIcon />}
-                      onClick={() => handleDeleteProject(project._id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                )}
+                <TableCell align='center'>
+                  <Button
+                    variant='contained'
+                    color='secondary'
+                    className={classes.button}
+                    startIcon={<DeleteIcon />}
+                    disabled={handleButtonDisable(project)}
+                    onClick={() => handleDeleteProject(project._id)}
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
