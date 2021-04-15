@@ -69,7 +69,6 @@ const ProjectsScreen = props => {
   const renderHardwareSets = () => {
     let res = [];
     openedProjectHardware.forEach(element => {
-      console.log(element);
       res.push(
         <>
           <Typography align='center'>{element.hardware.name}</Typography>

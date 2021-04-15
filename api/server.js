@@ -24,7 +24,9 @@ app.use(
     }
   })
 );
-
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 app.use(express.json());
 require('./routes/authRoutes')(app);
 require('./routes/projectRoutes')(app);
