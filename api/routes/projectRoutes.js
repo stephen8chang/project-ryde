@@ -7,12 +7,12 @@ module.exports = app => {
   });
   //Create new project in database
   app.post('/api/create', async (req, res) => {
-    const { projectName, description, creator, hardwareSets } = req.body;
+    const { projectName, description, creator, checkedOut } = req.body;
     const project = new Project({
       creator,
       projectName,
       description,
-      hardwareSets,
+      checkedOut,
       access: true
     });
     await project.save();

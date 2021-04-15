@@ -29,6 +29,7 @@ app.use(express.json());
 require('./routes/authRoutes')(app);
 require('./routes/projectRoutes')(app);
 require('./routes/hardwareRoutes')(app);
+require('./routes/checkedRoutes')(app);
 path.resolve();
 // app.use(express.static(path.join(__dirname, '../frontend/build')));
 // app.get('*', (req, res) =>

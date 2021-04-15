@@ -5,8 +5,8 @@ const projectSchema = new Schema({
   creator: String,
   projectName: String,
   description: String,
-  hardwareSets: [
-    { type: mongoose.Schema.Types.ObjectId, ref: 'HWset', default: [] }
+  checkedOut: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'checkedOut', default: [] }
   ],
   access: Boolean
 });

@@ -14,11 +14,15 @@ import { Alert } from '@material-ui/lab';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
 import CreateProject from '../components/CreateProject';
+import CreateHardware from '../components/CreateHardware';
 import ProjectTable from '../components/ProjectTable';
+import HardwareTable from '../components/HardwareTable';
 
 const ProjectsScreen = props => {
   const [projects, setProjects] = useState([]);
+  const [hardwares, setHardwares] = useState([]);
   const [openedProject, setOpenedProject] = useState({});
+  const [openedProjectCheckedOut, setOpenedProjectCheckedOut] = useState([]);
   const [openedProjectHardware, setOpenedProjectHardware] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [errorSnackbar, setErrorSnackbar] = useState('');
@@ -26,16 +30,36 @@ const ProjectsScreen = props => {
   const onOpenProject = project => {
     setOpenModal(true);
     setOpenedProject(project);
-    setOpenedProjectHardware(project.hardwareSets);
-    let hardwareArray = project.hardwareSets.map(async id => {
-      const hwObject = await axios.get('/api/hardware/' + id);
+    setOpenedProjectCheckedOut(project.checkedOut);
+    let hardwareArray = project.checkedOut.map(async checkOutId => {
+      const hwObject = await axios.get('/api/checked/hardware/' + checkOutId);
       return hwObject.data[0];
     });
-    Promise.all(hardwareArray).then(res => console.log(res));
+    Promise.all(hardwareArray).then(res => setOpenedProjectHardware(res));
+  };
+  const renderHardwareSets = () => {
+    let res = [];
+    console.log(props.auth);
+    console.log(openedProjectHardware);
+    openedProjectHardware.forEach(element => {
+      res.push(
+        <>
+          <Typography align='center'>{element.hardware.name}</Typography>
+          <Typography align='center'>
+            Checked out: {element.checkedOut}
+          </Typography>
+        </>
+      );
+    });
+    return res;
   };
   useEffect(async () => {
     await axios.get('/api/projects/all').then(projects => {
       setProjects(projects.data);
+    });
+    await axios.get('/api/hardware/all').then(hardware => {
+      console.log(hardware.data);
+      setHardwares(hardware.data);
     });
   }, [props.auth, projects]);
   return (
@@ -44,8 +68,16 @@ const ProjectsScreen = props => {
 
       <Grid container item xs={12} spacing={3}>
         <React.Fragment>
-          <CreateProject />
-          <ProjectTable projects={projects} onOpenProject={onOpenProject} />
+          <Grid item xs={4}>
+            <CreateProject />
+            {props.auth && props.auth.admin && <CreateHardware />}
+          </Grid>
+          <Grid item xs={8}>
+            <ProjectTable projects={projects} onOpenProject={onOpenProject} />
+            {props.auth && props.auth.admin && (
+              <HardwareTable hardwares={hardwares} />
+            )}
+          </Grid>
         </React.Fragment>
       </Grid>
       {successSnackbar ? (
@@ -97,6 +129,7 @@ const ProjectsScreen = props => {
           <DialogContent>
             <Typography align='center'>{openedProject.description}</Typography>
           </DialogContent>
+          <DialogContent>{renderHardwareSets()}</DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenModal(false)} color='primary'>
               Cancel

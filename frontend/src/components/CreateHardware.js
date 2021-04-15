@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Button,
-  Typography,
   Paper,
-  TextField
+  TextField,
+  Typography
 } from '@material-ui/core';
 import AddToPhotosIcon from '@material-ui/icons/AddToPhotos';
 import { Alert } from '@material-ui/lab';
@@ -23,32 +23,22 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(3, 0, 2)
   }
 }));
-const CreateProject = props => {
+const CreateHardware = props => {
   const classes = useStyles();
 
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [available, setAvailable] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [hardwareSets, setHardwareSets] = useState([]);
-  useEffect(async () => {
-    const res = await axios.get('/api/hardware/all');
-    setHardwareSets(res.data);
-  }, [props.auth]);
   const handleOnSubmit = async () => {
-    if (name !== '' && description !== '') {
-      const checkedOut = await axios.post('/api/checked/create', {
-        hardwareSets
-      });
-      await axios.post('/api/create', {
-        projectName: name,
-        description,
-        checkedOut: checkedOut.data,
-        creator: props.auth.email
+    if (name !== '' && available !== '') {
+      await axios.post('/api/hardware/create', {
+        name,
+        available: Number(available)
       });
       setName('');
-      setDescription('');
-      setSuccessMessage('Project created!');
+      setAvailable('');
+      setSuccessMessage('Hardware set created!');
     } else {
       setErrorMessage('Please fill out all fields.');
     }
@@ -63,16 +53,15 @@ const CreateProject = props => {
           alignItems: 'center'
         }}
       >
-        <Typography variant='h6'>Create New Project</Typography>
+        <Typography variant='h6'>Create New Hardware Set</Typography>
       </AppBar>
-
       <TextField
         variant='filled'
         margin='normal'
         required
-        id='Project Name'
-        label='Project Name'
-        name='Project Name'
+        id='Hardware Name'
+        label='Hardware Name'
+        name='Hardware Name'
         style={{ width: '75%' }}
         onChange={e => setName(e.target.value)}
       />
@@ -80,17 +69,17 @@ const CreateProject = props => {
         variant='filled'
         margin='normal'
         required
-        id='Project Description'
-        label='Project Description'
-        name='Project Description'
+        id='Hardware Available'
+        label='Hardware Available'
+        name='Hardware Available'
         style={{ width: '75%' }}
-        onChange={e => setDescription(e.target.value)}
+        onChange={e => setAvailable(e.target.value)}
       />
       <Button
         onClick={handleOnSubmit}
         style={{ paddingTop: 15, paddingBottom: 15 }}
       >
-        Create New Project <AddToPhotosIcon />
+        Create New Hardware <AddToPhotosIcon />
       </Button>
       {errorMessage ? (
         <Alert
@@ -122,4 +111,4 @@ const CreateProject = props => {
 const mapStateToProps = state => {
   return { auth: state.auth };
 };
-export default connect(mapStateToProps)(CreateProject);
+export default connect(mapStateToProps)(CreateHardware);
