@@ -4,13 +4,11 @@ import {
   Button,
   Grid,
   Typography,
-  Snackbar,
   Dialog,
   DialogActions,
   DialogContent
 } from '@material-ui/core';
 import axios from 'axios';
-import { Alert } from '@material-ui/lab';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
 import CreateProject from '../components/CreateProject';
@@ -22,26 +20,56 @@ const ProjectsScreen = props => {
   const [projects, setProjects] = useState([]);
   const [hardwares, setHardwares] = useState([]);
   const [openedProject, setOpenedProject] = useState({});
-  const [openedProjectCheckedOut, setOpenedProjectCheckedOut] = useState([]);
-  const [openedProjectHardware, setOpenedProjectHardware] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [errorSnackbar, setErrorSnackbar] = useState('');
-  const [successSnackbar, setSuccessSnackbar] = useState('');
-  const onOpenProject = project => {
+  const [openedProjectHardware, setOpenedProjectHardware] = useState([]);
+
+  const onOpenProject = async project => {
+    await axios.get('/api/hardware/all').then(hardware => {
+      setHardwares(hardware.data);
+    });
+    const projectHardwareIds = project.checkedOut.map(
+      element => element.hardware
+    );
+    const hardwareIds = hardwares.map(element => element._id);
+    let missingIds = [];
+    let missingHardwareSets = [];
+
+    hardwareIds.forEach(id => {
+      if (!projectHardwareIds.includes(id)) {
+        missingIds.push(id);
+      }
+    });
+    missingIds.forEach(id => {
+      hardwares.forEach(hardware => {
+        if (id === hardware._id) {
+          missingHardwareSets.push(hardware);
+        }
+      });
+    });
+
+    if (missingHardwareSets) {
+      const checkedOut = await axios.post('/api/checked/create', {
+        hardwareSets: missingHardwareSets
+      });
+      const checkedOutArray = project.checkedOut;
+      checkedOut.data.forEach(data => checkedOutArray.push(data));
+      await axios.post('/api/projects/addHardware', {
+        checkedOut: checkedOutArray,
+        id: project._id
+      });
+    }
     setOpenModal(true);
     setOpenedProject(project);
-    setOpenedProjectCheckedOut(project.checkedOut);
-    let hardwareArray = project.checkedOut.map(async checkOutId => {
-      const hwObject = await axios.get('/api/checked/hardware/' + checkOutId);
-      return hwObject.data[0];
+    let hardwareArray = project.checkedOut.map(async ({ _id }) => {
+      let hardware = await axios.get('/api/checked/hardware/' + _id);
+      return hardware.data[0];
     });
-    Promise.all(hardwareArray).then(res => setOpenedProjectHardware(res));
+    await Promise.all(hardwareArray).then(res => setOpenedProjectHardware(res));
   };
   const renderHardwareSets = () => {
     let res = [];
-    console.log(props.auth);
-    console.log(openedProjectHardware);
     openedProjectHardware.forEach(element => {
+      console.log(element);
       res.push(
         <>
           <Typography align='center'>{element.hardware.name}</Typography>
@@ -58,10 +86,9 @@ const ProjectsScreen = props => {
       setProjects(projects.data);
     });
     await axios.get('/api/hardware/all').then(hardware => {
-      console.log(hardware.data);
       setHardwares(hardware.data);
     });
-  }, [props.auth, projects]);
+  }, [props.auth]);
   return (
     <Grid container spacing={1}>
       {!props.auth ? <Redirect to='/login' /> : <Redirect to='/projects' />}
@@ -80,32 +107,7 @@ const ProjectsScreen = props => {
           </Grid>
         </React.Fragment>
       </Grid>
-      {successSnackbar ? (
-        <Snackbar
-          open
-          autoHideDuration={6000}
-          onClose={() => {
-            setSuccessSnackbar('');
-          }}
-        >
-          <Alert autoHideDuration={100} severity='success'>
-            {successSnackbar}
-          </Alert>
-        </Snackbar>
-      ) : null}
-      {errorSnackbar ? (
-        <Snackbar
-          open
-          autoHideDuration={6000}
-          onClose={() => {
-            setErrorSnackbar('');
-          }}
-        >
-          <Alert autoHideDuration={100} severity='error'>
-            {errorSnackbar}
-          </Alert>
-        </Snackbar>
-      ) : null}
+
       {openModal ? (
         <Dialog
           maxWidth='md'

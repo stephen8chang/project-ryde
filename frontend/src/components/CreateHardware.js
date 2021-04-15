@@ -4,10 +4,12 @@ import {
   Button,
   Paper,
   TextField,
-  Typography
+  Typography,
+  Snackbar,
+  IconButton
 } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import AddToPhotosIcon from '@material-ui/icons/AddToPhotos';
-import { Alert } from '@material-ui/lab';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
@@ -29,18 +31,28 @@ const CreateHardware = props => {
   const [name, setName] = useState('');
   const [available, setAvailable] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const successMessage = 'Hardware set created!';
+  const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+
   const handleOnSubmit = async () => {
     if (name !== '' && available !== '') {
-      await axios.post('/api/hardware/create', {
-        name,
-        available: Number(available)
-      });
-      setName('');
-      setAvailable('');
-      setSuccessMessage('Hardware set created!');
+      if (Number.isInteger(Number(available))) {
+        await axios.post('/api/hardware/create', {
+          name,
+          available: Number(available)
+        });
+        setName('');
+        setAvailable('');
+        setErrorSnackbarOpen(false);
+        setSuccessSnackbarOpen(true);
+      } else {
+        setErrorMessage('Please enter number for available.');
+        setErrorSnackbarOpen(true);
+      }
     } else {
       setErrorMessage('Please fill out all fields.');
+      setErrorSnackbarOpen(true);
     }
   };
   return (
@@ -63,6 +75,7 @@ const CreateHardware = props => {
         label='Hardware Name'
         name='Hardware Name'
         style={{ width: '75%' }}
+        value={name}
         onChange={e => setName(e.target.value)}
       />
       <TextField
@@ -73,6 +86,7 @@ const CreateHardware = props => {
         label='Hardware Available'
         name='Hardware Available'
         style={{ width: '75%' }}
+        value={available}
         onChange={e => setAvailable(e.target.value)}
       />
       <Button
@@ -81,30 +95,50 @@ const CreateHardware = props => {
       >
         Create New Hardware <AddToPhotosIcon />
       </Button>
-      {errorMessage ? (
-        <Alert
-          className={classes.submit}
-          style={{
-            width: '70%',
-            justifyContent: 'center'
-          }}
-          severity='error'
-        >
-          {errorMessage}
-        </Alert>
-      ) : null}
-      {successMessage ? (
-        <Alert
-          className={classes.submit}
-          style={{
-            width: '70%',
-            justifyContent: 'center'
-          }}
-          severity='success'
-        >
-          {successMessage}
-        </Alert>
-      ) : null}
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        open={successSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSuccessSnackbarOpen(false)}
+        message={successMessage}
+        action={
+          <React.Fragment>
+            <IconButton
+              size='small'
+              aria-label='close'
+              color='inherit'
+              onClick={() => setSuccessSnackbarOpen(false)}
+            >
+              <CloseIcon fontSize='small' />
+            </IconButton>
+          </React.Fragment>
+        }
+      />
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        open={errorSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setErrorSnackbarOpen(false)}
+        message={errorMessage}
+        action={
+          <React.Fragment>
+            <IconButton
+              size='small'
+              aria-label='close'
+              color='inherit'
+              onClick={() => setErrorSnackbarOpen(false)}
+            >
+              <CloseIcon fontSize='small' />
+            </IconButton>
+          </React.Fragment>
+        }
+      />
     </Paper>
   );
 };

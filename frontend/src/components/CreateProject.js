@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
   AppBar,
+  IconButton,
   Button,
+  Snackbar,
   Typography,
   Paper,
   TextField
 } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import AddToPhotosIcon from '@material-ui/icons/AddToPhotos';
-import { Alert } from '@material-ui/lab';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
@@ -28,8 +30,11 @@ const CreateProject = props => {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const errorMessage = 'Please fill out all fields.';
+  const successMessage = 'Project created!';
+  const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
+
   const [hardwareSets, setHardwareSets] = useState([]);
   useEffect(async () => {
     const res = await axios.get('/api/hardware/all');
@@ -40,7 +45,7 @@ const CreateProject = props => {
       const checkedOut = await axios.post('/api/checked/create', {
         hardwareSets
       });
-      await axios.post('/api/create', {
+      await axios.post('/api/projects/create', {
         projectName: name,
         description,
         checkedOut: checkedOut.data,
@@ -48,9 +53,9 @@ const CreateProject = props => {
       });
       setName('');
       setDescription('');
-      setSuccessMessage('Project created!');
+      setSuccessSnackbarOpen(true);
     } else {
-      setErrorMessage('Please fill out all fields.');
+      setErrorSnackbarOpen(true);
     }
   };
   return (
@@ -74,6 +79,7 @@ const CreateProject = props => {
         label='Project Name'
         name='Project Name'
         style={{ width: '75%' }}
+        value={name}
         onChange={e => setName(e.target.value)}
       />
       <TextField
@@ -84,6 +90,7 @@ const CreateProject = props => {
         label='Project Description'
         name='Project Description'
         style={{ width: '75%' }}
+        value={description}
         onChange={e => setDescription(e.target.value)}
       />
       <Button
@@ -92,30 +99,50 @@ const CreateProject = props => {
       >
         Create New Project <AddToPhotosIcon />
       </Button>
-      {errorMessage ? (
-        <Alert
-          className={classes.submit}
-          style={{
-            width: '70%',
-            justifyContent: 'center'
-          }}
-          severity='error'
-        >
-          {errorMessage}
-        </Alert>
-      ) : null}
-      {successMessage ? (
-        <Alert
-          className={classes.submit}
-          style={{
-            width: '70%',
-            justifyContent: 'center'
-          }}
-          severity='success'
-        >
-          {successMessage}
-        </Alert>
-      ) : null}
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        open={successSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSuccessSnackbarOpen(false)}
+        message={successMessage}
+        action={
+          <React.Fragment>
+            <IconButton
+              size='small'
+              aria-label='close'
+              color='inherit'
+              onClick={() => setSuccessSnackbarOpen(false)}
+            >
+              <CloseIcon fontSize='small' />
+            </IconButton>
+          </React.Fragment>
+        }
+      />
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        open={errorSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setErrorSnackbarOpen(false)}
+        message={errorMessage}
+        action={
+          <React.Fragment>
+            <IconButton
+              size='small'
+              aria-label='close'
+              color='inherit'
+              onClick={() => setErrorSnackbarOpen(false)}
+            >
+              <CloseIcon fontSize='small' />
+            </IconButton>
+          </React.Fragment>
+        }
+      />
     </Paper>
   );
 };

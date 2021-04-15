@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
-  Grid,
+  IconButton,
   Paper,
   TableHead,
   TableRow,
@@ -9,10 +9,14 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  Typography
+  Typography,
+  Snackbar
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-
+import DeleteIcon from '@material-ui/icons/Delete';
+import CloseIcon from '@material-ui/icons/Close';
+import { connect } from 'react-redux';
+import axios from 'axios';
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -21,8 +25,16 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center'
   }
 }));
-const ProjectTable = ({ projects, onOpenProject }) => {
+const ProjectTable = ({ projects, onOpenProject, auth }) => {
   const classes = useStyles();
+  const [successMessage, setSuccessMessage] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const handleDeleteProject = id => {
+    axios.get('/api/projects/delete/' + id).then(payload => {
+      setSuccessMessage(payload.data.message);
+      setSnackbarOpen(true);
+    });
+  };
   return (
     <Paper className={classes.paper}>
       <Typography variant='h4'>Projects</Typography>
@@ -35,6 +47,9 @@ const ProjectTable = ({ projects, onOpenProject }) => {
               <TableCell align='center'>Creator</TableCell>
               <TableCell align='center'>ID</TableCell>
               <TableCell align='center'>Link</TableCell>
+              {auth && auth.admin && (
+                <TableCell align='center'>Delete</TableCell>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -55,13 +70,50 @@ const ProjectTable = ({ projects, onOpenProject }) => {
                     Open
                   </Button>
                 </TableCell>
+                {auth && auth.admin && (
+                  <TableCell align='center'>
+                    <Button
+                      variant='contained'
+                      color='secondary'
+                      className={classes.button}
+                      startIcon={<DeleteIcon />}
+                      onClick={() => handleDeleteProject(project._id)}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={successMessage}
+        action={
+          <React.Fragment>
+            <IconButton
+              size='small'
+              aria-label='close'
+              color='inherit'
+              onClick={() => setSnackbarOpen(false)}
+            >
+              <CloseIcon fontSize='small' />
+            </IconButton>
+          </React.Fragment>
+        }
+      />
     </Paper>
   );
 };
-
-export default ProjectTable;
+const mapStateToProps = state => {
+  return { auth: state.auth };
+};
+export default connect(mapStateToProps)(ProjectTable);
