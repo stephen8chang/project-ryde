@@ -37,6 +37,21 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+export const checkValidEmail = mail => {
+  if (mail === '') {
+    return false;
+  }
+  if (
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+      mail.toLowerCase()
+    )
+  ) {
+    return true;
+  }
+  return false;
+};
+
+
 function RegisterScreen(props) {
   const classes = useStyles();
   const history = useHistory();
@@ -64,19 +79,6 @@ function RegisterScreen(props) {
         setErrorMessage(data.message);
       }
     }
-  };
-  const checkValidEmail = mail => {
-    if (mail === '') {
-      return false;
-    }
-    if (
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-        mail.toLowerCase()
-      )
-    ) {
-      return true;
-    }
-    return false;
   };
   useEffect(() => {
     if (password !== '' && confirmPassword !== '') {
@@ -198,4 +200,5 @@ function RegisterScreen(props) {
 const mapStateToProps = state => {
   return { auth: state.auth };
 };
+
 export default connect(mapStateToProps)(RegisterScreen);
