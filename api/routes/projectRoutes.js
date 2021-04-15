@@ -6,8 +6,7 @@ module.exports = app => {
       creator,
       projectName,
       description,
-      HW1Amt: 0,
-      HW2Amt: 0,
+      hardwareSets: [],
       access: true
     });
     await project.save();

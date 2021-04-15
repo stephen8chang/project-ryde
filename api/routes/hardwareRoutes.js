@@ -1,5 +1,9 @@
 const HWset = require('../models/HWset');
 module.exports = app => {
+  app.get('/api/hardware/all', async (req, res) => {
+    const hw = await HWset.find({});
+    res.json(hw);
+  });
   app.post('/api/hardware', async (req, res) => {
     const { hwName, increment, number } = req.body;
     const value = increment ? number : -number;
