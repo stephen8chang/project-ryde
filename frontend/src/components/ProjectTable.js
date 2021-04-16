@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center'
   }
 }));
-const ProjectTable = ({ projects, onOpenProject, auth }) => {
+const ProjectTable = ({ projects, onOpenProject, auth, fetchAllProjects }) => {
   const classes = useStyles();
   const [successMessage, setSuccessMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -34,6 +34,7 @@ const ProjectTable = ({ projects, onOpenProject, auth }) => {
       setSuccessMessage(payload.data.message);
       setSnackbarOpen(true);
     });
+    fetchAllProjects();
   };
   const handleButtonDisable = ({ creator }) => {
     if (auth && auth.admin) {

@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(3, 0, 2)
   }
 }));
-const CreateProject = props => {
+const CreateProject = ({ auth, fetchAllProjects }) => {
   const classes = useStyles();
 
   const [name, setName] = useState('');
@@ -39,7 +39,7 @@ const CreateProject = props => {
   useEffect(async () => {
     const res = await axios.get('/api/hardware/all');
     setHardwareSets(res.data);
-  }, [props.auth]);
+  }, [auth]);
   const handleOnSubmit = async () => {
     if (name !== '' && description !== '') {
       const checkedOut = await axios.post('/api/checked/create', {
@@ -49,8 +49,9 @@ const CreateProject = props => {
         projectName: name,
         description,
         checkedOut: checkedOut.data,
-        creator: props.auth.email
+        creator: auth.email
       });
+      fetchAllProjects();
       setName('');
       setDescription('');
       setSuccessSnackbarOpen(true);

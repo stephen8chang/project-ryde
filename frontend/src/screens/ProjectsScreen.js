@@ -22,24 +22,41 @@ const ProjectsScreen = props => {
   const [openedProject, setOpenedProject] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [openedProjectHardware, setOpenedProjectHardware] = useState([]);
-
-  const onOpenProject = async project => {
+  const fetchAllProjects = async () => {
+    await axios.get('/api/projects/all').then(projects => {
+      setProjects(projects.data);
+    });
+  };
+  const fetchAllHardwares = async () => {
     await axios.get('/api/hardware/all').then(hardware => {
       setHardwares(hardware.data);
     });
+  };
+  const onOpenProject = async project => {
+    fetchAllHardwares();
+    //Gets all of the current opened project's hardware ids
     const projectHardwareIds = project.checkedOut.map(
       element => element.hardware
     );
+    //Gets all of the hardware ids available
     const hardwareIds = hardwares.map(element => element._id);
-    let missingIds = [];
+    let missingHardwareIds = [];
+    let removedHardwareIds = [];
     let missingHardwareSets = [];
 
+    //Finds which new hardware sets appeared after creation of project under missingHardwareIds
     hardwareIds.forEach(id => {
       if (!projectHardwareIds.includes(id)) {
-        missingIds.push(id);
+        missingHardwareIds.push(id);
       }
     });
-    missingIds.forEach(id => {
+    //Finds which hardware sets were deleted after creation of project under removedHardwareIds
+    projectHardwareIds.forEach(id => {
+      if (!hardwareIds.includes(id)) {
+        removedHardwareIds.push(id);
+      }
+    });
+    missingHardwareIds.forEach(id => {
       hardwares.forEach(hardware => {
         if (id === hardware._id) {
           missingHardwareSets.push(hardware);
@@ -53,6 +70,21 @@ const ProjectsScreen = props => {
       });
       const checkedOutArray = project.checkedOut;
       checkedOut.data.forEach(data => checkedOutArray.push(data));
+      await axios.post('/api/projects/addHardware', {
+        checkedOut: checkedOutArray,
+        id: project._id
+      });
+    }
+    if (removedHardwareIds) {
+      const checkedOutArray = project.checkedOut;
+      //Remove objects that are inside removedHardwareIds
+      removedHardwareIds.forEach(removedId => {
+        checkedOutArray.forEach((checked, index) => {
+          if (checked.hardware === removedId) {
+            checkedOutArray.splice(index, 1);
+          }
+        });
+      });
       await axios.post('/api/projects/addHardware', {
         checkedOut: checkedOutArray,
         id: project._id
@@ -81,12 +113,8 @@ const ProjectsScreen = props => {
     return res;
   };
   useEffect(async () => {
-    await axios.get('/api/projects/all').then(projects => {
-      setProjects(projects.data);
-    });
-    await axios.get('/api/hardware/all').then(hardware => {
-      setHardwares(hardware.data);
-    });
+    fetchAllProjects();
+    fetchAllHardwares();
   }, [props.auth]);
   return (
     <Grid container spacing={1}>
@@ -95,13 +123,22 @@ const ProjectsScreen = props => {
       <Grid container item xs={12} spacing={3}>
         <React.Fragment>
           <Grid item xs={4}>
-            <CreateProject />
-            {props.auth && props.auth.admin && <CreateHardware />}
+            <CreateProject fetchAllProjects={fetchAllProjects} />
+            {props.auth && props.auth.admin && (
+              <CreateHardware fetchAllHardwares={fetchAllHardwares} />
+            )}
           </Grid>
           <Grid item xs={8}>
-            <ProjectTable projects={projects} onOpenProject={onOpenProject} />
+            <ProjectTable
+              projects={projects}
+              onOpenProject={onOpenProject}
+              fetchAllProjects={fetchAllProjects}
+            />
             {props.auth && props.auth.admin && (
-              <HardwareTable hardwares={hardwares} />
+              <HardwareTable
+                hardwares={hardwares}
+                fetchAllHardwares={fetchAllHardwares}
+              />
             )}
           </Grid>
         </React.Fragment>
