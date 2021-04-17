@@ -15,8 +15,13 @@ import {
   TableContainer,
   Paper,
   TextField,
-  MenuItem
+  MenuItem,
+  Input,
+  IconButton,
+  Collapse
 } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
+import { Alert } from '@material-ui/lab';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
@@ -40,35 +45,83 @@ const ProjectsScreen = props => {
   const [openedProject, setOpenedProject] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [openedProjectHardware, setOpenedProjectHardware] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [openedMessage, setOpenedMessage] = useState(false);
   //On open of project, for checking in and out hardware sets (dropdown menu)
   const [hardwareDropDown, setHardwareDropDown] = useState('');
   const [hardwareQty, setHardwareQty] = useState('');
+  useEffect(() => {
+    if (errorMessage !== '') {
+      setSuccessMessage('');
+    } else if (successMessage !== '') {
+      setErrorMessage('');
+    }
+  }, [errorMessage, successMessage]);
+  const resetOnClose = () => {
+    setHardwareDropDown('');
+    setHardwareQty('');
+    setErrorMessage('');
+    setSuccessMessage('');
+    setOpenModal(false);
+    setOpenedMessage(false);
+  };
   const handleCheckIn = () => {
     let checkedOutElement = '';
+    let checkedOutQty = 0;
     openedProjectHardware.forEach(element => {
       if (element.hardware._id === hardwareDropDown) {
         checkedOutElement = element._id;
+        checkedOutQty = element.checkedOut;
       }
     });
-
-    axios.post('/api/projects/checkin', {
-      hardwareId: hardwareDropDown,
-      checkedId: checkedOutElement,
-      qty: hardwareQty
-    });
+    if (checkedOutQty < Number(hardwareQty)) {
+      console.log('Project dos not own enough sets.');
+      setSuccessMessage('');
+      setErrorMessage('Project does not own enough sets.');
+    } else if (Number(hardwareQty) < 0) {
+      console.log('Please enter a value of at least 1.');
+      setSuccessMessage('');
+      setErrorMessage('Please enter a value of at least 1.');
+    } else {
+      setErrorMessage('');
+      setSuccessMessage('Successfully updated.');
+      axios.post('/api/projects/checkin', {
+        hardwareId: hardwareDropDown,
+        checkedId: checkedOutElement,
+        qty: hardwareQty
+      });
+    }
+    setOpenedMessage(true);
   };
   const handleCheckOut = () => {
     let checkedOutElement = '';
+    let hardwareQtyAvailable = 0;
     openedProjectHardware.forEach(element => {
       if (element.hardware._id === hardwareDropDown) {
         checkedOutElement = element._id;
+        hardwareQtyAvailable = element.hardware.available;
       }
     });
-    axios.post('/api/projects/checkout', {
-      hardwareId: hardwareDropDown,
-      checkedId: checkedOutElement,
-      qty: hardwareQty
-    });
+    console.log(hardwareQtyAvailable, hardwareQty);
+    if (hardwareQtyAvailable < Number(hardwareQty)) {
+      console.log('Not enough hardware sets to check out.');
+      setSuccessMessage('');
+      setErrorMessage('Not enough hardware sets to check out.');
+    } else if (Number(hardwareQty) < 0) {
+      console.log('Please enter a value of at least 1.');
+      setSuccessMessage('');
+      setErrorMessage('Please enter a value of at least 1.');
+    } else {
+      setErrorMessage('');
+      setSuccessMessage('Successfully updated.');
+      axios.post('/api/projects/checkout', {
+        hardwareId: hardwareDropDown,
+        checkedId: checkedOutElement,
+        qty: hardwareQty
+      });
+    }
+    setOpenedMessage(true);
   };
   const fetchAllProjects = async () => {
     await axios.get('/api/projects/all').then(projects => {
@@ -113,7 +166,7 @@ const ProjectsScreen = props => {
         }
       });
     });
-
+    console.log(missingHardwareSets);
     if (missingHardwareSets) {
       const checkedOut = await axios.post('/api/checked/create', {
         hardwareSets: missingHardwareSets
@@ -150,65 +203,122 @@ const ProjectsScreen = props => {
   };
   const renderHardwareCheckout = () => {
     return (
-      <Paper className={classes.paper}>
-        <TableContainer component={Paper}>
-          <Table aria-label='simple table'>
-            <TableHead>
-              <TableRow>
-                <TableCell align='center'>Set</TableCell>
-                <TableCell align='center'>Quantity</TableCell>
-                <TableCell align='center'>Check In</TableCell>
-                <TableCell align='center'>Check Out</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell align='center'>
-                  <TextField
-                    select
-                    style={{ width: '100%' }}
-                    onChange={e => setHardwareDropDown(e.target.value)}
-                  >
-                    {openedProjectHardware.map(option => (
-                      <MenuItem
-                        key={option.hardware._id}
-                        value={option.hardware._id}
+      <>
+        <div>
+          <Paper className={classes.paper}>
+            <TableContainer component={Paper}>
+              <Table aria-label='simple table'>
+                <TableHead>
+                  <TableRow>
+                    <TableCell align='center'>Set</TableCell>
+                    <TableCell align='center'>Quantity</TableCell>
+                    <TableCell align='center'>Check In</TableCell>
+                    <TableCell align='center'>Check Out</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align='center'>
+                      <TextField
+                        select
+                        style={{ width: '100%' }}
+                        onChange={e => setHardwareDropDown(e.target.value)}
                       >
-                        {option.hardware.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </TableCell>
-                <TableCell align='center'>
-                  <TextField
-                    variant='outlined'
-                    style={{ width: '20%' }}
-                    onChange={e => setHardwareQty(e.target.value)}
-                  />
-                </TableCell>
-                <TableCell align='center'>
-                  <Button
-                    variant='contained'
-                    color='primary'
-                    disabled={hardwareDropDown === '' || hardwareQty === ''}
-                    onClick={handleCheckIn}
+                        {openedProjectHardware.map(option => (
+                          <MenuItem
+                            key={option.hardware._id}
+                            value={option.hardware._id}
+                          >
+                            {option.hardware.name}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </TableCell>
+                    <TableCell align='center'>
+                      <Input
+                        type='number'
+                        onChange={e => setHardwareQty(e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell align='center'>
+                      <Button
+                        variant='contained'
+                        color='primary'
+                        disabled={hardwareDropDown === '' || hardwareQty === ''}
+                        onClick={handleCheckIn}
+                      >
+                        Check In
+                      </Button>
+                    </TableCell>
+                    <TableCell align='center'>
+                      <Button
+                        variant='contained'
+                        color='primary'
+                        disabled={hardwareDropDown === '' || hardwareQty === ''}
+                        onClick={handleCheckOut}
+                      >
+                        Check Out
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </div>
+        <div style={{ paddingTop: '1rem' }}>
+          {errorMessage ? (
+            <Collapse in={openedMessage}>
+              <Alert
+                style={{
+                  width: '50%',
+                  justifyContent: 'center',
+                  margin: 'auto'
+                }}
+                action={
+                  <IconButton
+                    aria-label='close'
+                    color='inherit'
+                    size='small'
+                    onClick={() => {
+                      setOpenedMessage(false);
+                    }}
                   >
-                    Check In
-                  </Button>
-                </TableCell>
-                <TableCell align='center'>
-                  <Button
-                    variant='contained'
-                    color='primary'
-                    disabled={hardwareDropDown === '' || hardwareQty === ''}
-                    onClick={handleCheckOut}
+                    <CloseIcon fontSize='inherit' />
+                  </IconButton>
+                }
+                severity='error'
+              >
+                {errorMessage}
+              </Alert>
+            </Collapse>
+          ) : null}
+          {successMessage ? (
+            <Collapse in={openedMessage}>
+              <Alert
+                style={{
+                  width: '50%',
+                  justifyContent: 'center',
+                  margin: 'auto'
+                }}
+                action={
+                  <IconButton
+                    aria-label='close'
+                    color='inherit'
+                    size='small'
+                    onClick={() => {
+                      setOpenedMessage(false);
+                    }}
                   >
-                    Check Out
-                  </Button>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-          </Table>
-        </TableContainer>
-      </Paper>
+                    <CloseIcon fontSize='inherit' />
+                  </IconButton>
+                }
+                severity='success'
+              >
+                {successMessage}
+              </Alert>
+            </Collapse>
+          ) : null}
+        </div>
+      </>
     );
   };
   const renderHardwareSets = () => {
@@ -320,14 +430,7 @@ const ProjectsScreen = props => {
             {renderHardwareSets()}
           </DialogContent>
           <DialogActions>
-            <Button
-              onClick={() => {
-                setHardwareDropDown('');
-                setHardwareQty('');
-                setOpenModal(false);
-              }}
-              color='primary'
-            >
+            <Button onClick={resetOnClose} color='primary'>
               Close
             </Button>
           </DialogActions>
