@@ -46,8 +46,11 @@ function RegisterScreen(props) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [matchingPassword, setMatchingPassword] = useState(true);
   const handleOnSubmit = async () => {
+    if (!checkValidEmail(email)) {
+      setErrorMessage('Enter a valid email');
+      return;
+    }
     let { data } = await axios.post('/api/register', {
       firstName,
       lastName,
@@ -62,6 +65,19 @@ function RegisterScreen(props) {
       }
     }
   };
+  const checkValidEmail = mail => {
+    if (mail === '') {
+      return false;
+    }
+    if (
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+        mail.toLowerCase()
+      )
+    ) {
+      return true;
+    }
+    return false;
+  };
   useEffect(() => {
     if (password !== '' && confirmPassword !== '') {
       if (password !== confirmPassword) {
@@ -69,6 +85,8 @@ function RegisterScreen(props) {
       } else {
         setErrorMessage('');
       }
+    } else {
+      setErrorMessage('');
     }
   }, [confirmPassword, password]);
   return (

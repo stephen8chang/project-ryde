@@ -1,135 +1,368 @@
 import React, { useState, useEffect } from 'react';
 import {
+  AppBar,
   Button,
   Grid,
+  Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  TableCell,
+  TableRow,
+  TableBody,
+  Table,
+  TableHead,
+  TableContainer,
   Paper,
   TextField,
-  TableHead,
-  TableRow,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  Snackbar
+  MenuItem,
+  Input,
+  IconButton,
+  Collapse
 } from '@material-ui/core';
-import AddToPhotosIcon from '@material-ui/icons/AddToPhotos';
-import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
+import CloseIcon from '@material-ui/icons/Close';
 import { Alert } from '@material-ui/lab';
+import axios from 'axios';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
-
+import CreateProject from '../components/CreateProject';
+import CreateHardware from '../components/CreateHardware';
+import ProjectTable from '../components/ProjectTable';
+import HardwareTable from '../components/HardwareTable';
+import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center'
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main
-  },
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(3)
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2)
   }
 }));
 const ProjectsScreen = props => {
   const classes = useStyles();
   const [projects, setProjects] = useState([]);
-  const [currProj, setCurrProj] = useState({
-    creator: '',
-    projectName: '',
-    description: '',
-    HW1Amt: 0,
-    HW2Amt: 0,
-    access: false
-  });
-  const [hardware1, setHardware1] = useState(0);
-  const [hardware2, setHardware2] = useState(0);
-
-  const [hw1Curr, sethw1Curr] = useState(0);
-  const [hw2Curr, sethw2Curr] = useState(0);
-  const [hw1Av, sethw1Av] = useState(0);
-  const [hw2Av, sethw2Av] = useState(0);
-
-  const handleOnSubmit = async () => {
-    if (name !== '' && description !== '') {
-      await axios.post('/api/create', {
-        projectName: name,
-        description,
-        creator: props.auth.email
-      });
-      window.location.reload();
-      setSuccessMessage('Project created!');
-    } else {
-      setErrorMessage('Please fill out all fields.');
-    }
-  };
-  useEffect(() => {
-    axios.get('/api/projects').then(projects => {
-      setProjects(projects.data);
-    });
-    axios.get('/api/hardware/1').then(hw => sethw1Av(hw.data.available));
-    axios.get('/api/hardware/2').then(hw => sethw2Av(hw.data.available));
-    projects.forEach(project => {
-      if (project._id === currProj.id) {
-        sethw1Curr(project.HW1Amt);
-        sethw2Curr(project.HW2Amt);
-      }
-    });
-  }, [props.auth, currProj]);
-
-  const displayCurrProj = project => {
-    setCurrProj({
-      ...currProj,
-      creator: project.creator,
-      projectName: project.projectName,
-      description: project.description,
-      HW1Amt: project.HW1Amt,
-      HW2Amt: project.HW2Amt,
-      access: project.access,
-      id: project._id
-    });
-  };
-  const updateAmounts = (hw1Curr, hw2Curr, hw1Av, hw2Av) => {
-    sethw1Curr(hw1Curr);
-    sethw2Curr(hw2Curr);
-    sethw1Av(hw1Av);
-    sethw2Av(hw2Av);
-  };
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [hardwares, setHardwares] = useState([]);
+  const [openedProject, setOpenedProject] = useState({});
+  const [openModal, setOpenModal] = useState(false);
+  const [openedProjectHardware, setOpenedProjectHardware] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [errorSnackbar, setErrorSnackbar] = useState('');
-  const [successSnackbar, setSuccessSnackbar] = useState('');
-  const handleMakeChanges = () => {
-    if (hw1Curr < 0 || hw2Curr < 0) {
-      setErrorSnackbar('You returned too many sets');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } else if (hw1Av < 0 || hw2Av < 0) {
-      setErrorSnackbar('You checked out too many sets');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } else {
-      axios.post('/api/projects/count', { id: currProj.id, hw1Curr, hw2Curr });
-      axios.post('/api/hardware/count', {
-        hardware1,
-        hardware2
-      });
-      setHardware1(0);
-      setHardware2(0);
-      setSuccessSnackbar('Submitted successfully!');
+  const [openedMessage, setOpenedMessage] = useState(false);
+  //On open of project, for checking in and out hardware sets (dropdown menu)
+  const [hardwareDropDown, setHardwareDropDown] = useState('');
+  const [hardwareQty, setHardwareQty] = useState('');
+  useEffect(() => {
+    if (errorMessage !== '') {
+      setSuccessMessage('');
+    } else if (successMessage !== '') {
+      setErrorMessage('');
     }
+  }, [errorMessage, successMessage]);
+  const resetOnClose = () => {
+    setHardwareDropDown('');
+    setHardwareQty('');
+    setErrorMessage('');
+    setSuccessMessage('');
+    setOpenModal(false);
+    setOpenedMessage(false);
   };
+  const handleCheckIn = () => {
+    let checkedOutElement = '';
+    let checkedOutQty = 0;
+    openedProjectHardware.forEach(element => {
+      if (element.hardware._id === hardwareDropDown) {
+        checkedOutElement = element._id;
+        checkedOutQty = element.checkedOut;
+      }
+    });
+    if (checkedOutQty < Number(hardwareQty)) {
+      console.log('Project dos not own enough sets.');
+      setSuccessMessage('');
+      setErrorMessage('Project does not own enough sets.');
+    } else if (Number(hardwareQty) < 0) {
+      console.log('Please enter a value of at least 1.');
+      setSuccessMessage('');
+      setErrorMessage('Please enter a value of at least 1.');
+    } else {
+      setErrorMessage('');
+      setSuccessMessage('Successfully updated.');
+      axios.post('/api/projects/checkin', {
+        hardwareId: hardwareDropDown,
+        checkedId: checkedOutElement,
+        qty: hardwareQty
+      });
+    }
+    setOpenedMessage(true);
+  };
+  const handleCheckOut = () => {
+    let checkedOutElement = '';
+    let hardwareQtyAvailable = 0;
+    openedProjectHardware.forEach(element => {
+      if (element.hardware._id === hardwareDropDown) {
+        checkedOutElement = element._id;
+        hardwareQtyAvailable = element.hardware.available;
+      }
+    });
+    console.log(hardwareQtyAvailable, hardwareQty);
+    if (hardwareQtyAvailable < Number(hardwareQty)) {
+      console.log('Not enough hardware sets to check out.');
+      setSuccessMessage('');
+      setErrorMessage('Not enough hardware sets to check out.');
+    } else if (Number(hardwareQty) < 0) {
+      console.log('Please enter a value of at least 1.');
+      setSuccessMessage('');
+      setErrorMessage('Please enter a value of at least 1.');
+    } else {
+      setErrorMessage('');
+      setSuccessMessage('Successfully updated.');
+      axios.post('/api/projects/checkout', {
+        hardwareId: hardwareDropDown,
+        checkedId: checkedOutElement,
+        qty: hardwareQty
+      });
+    }
+    setOpenedMessage(true);
+  };
+  const fetchAllProjects = async () => {
+    await axios.get('/api/projects/all').then(projects => {
+      setProjects(projects.data);
+    });
+  };
+  const fetchAllHardwares = async () => {
+    await axios.get('/api/hardware/all').then(hardware => {
+      setHardwares(hardware.data);
+    });
+  };
+  const onOpenProject = async project => {
+    setHardwareDropDown('');
+    setHardwareQty('');
+    fetchAllHardwares();
+    //Gets all of the current opened project's hardware ids
+    const projectHardwareIds = project.checkedOut.map(
+      element => element.hardware
+    );
+    //Gets all of the hardware ids available
+    const hardwareIds = hardwares.map(element => element._id);
+    let missingHardwareIds = [];
+    let removedHardwareIds = [];
+    let missingHardwareSets = [];
+
+    //Finds which new hardware sets appeared after creation of project under missingHardwareIds
+    hardwareIds.forEach(id => {
+      if (!projectHardwareIds.includes(id)) {
+        missingHardwareIds.push(id);
+      }
+    });
+    //Finds which hardware sets were deleted after creation of project under removedHardwareIds
+    projectHardwareIds.forEach(id => {
+      if (!hardwareIds.includes(id)) {
+        removedHardwareIds.push(id);
+      }
+    });
+    missingHardwareIds.forEach(id => {
+      hardwares.forEach(hardware => {
+        if (id === hardware._id) {
+          missingHardwareSets.push(hardware);
+        }
+      });
+    });
+    console.log(missingHardwareSets);
+    if (missingHardwareSets) {
+      const checkedOut = await axios.post('/api/checked/create', {
+        hardwareSets: missingHardwareSets
+      });
+      const checkedOutArray = project.checkedOut;
+      checkedOut.data.forEach(data => checkedOutArray.push(data));
+      await axios.post('/api/projects/addHardware', {
+        checkedOut: checkedOutArray,
+        id: project._id
+      });
+    }
+    if (removedHardwareIds) {
+      const checkedOutArray = project.checkedOut;
+      //Remove objects that are inside removedHardwareIds
+      removedHardwareIds.forEach(removedId => {
+        checkedOutArray.forEach((checked, index) => {
+          if (checked.hardware === removedId) {
+            checkedOutArray.splice(index, 1);
+          }
+        });
+      });
+      await axios.post('/api/projects/addHardware', {
+        checkedOut: checkedOutArray,
+        id: project._id
+      });
+    }
+    setOpenModal(true);
+    setOpenedProject(project);
+    let hardwareArray = project.checkedOut.map(async ({ _id }) => {
+      let hardware = await axios.get('/api/checked/hardware/' + _id);
+      return hardware.data[0];
+    });
+    await Promise.all(hardwareArray).then(res => setOpenedProjectHardware(res));
+  };
+  const renderHardwareCheckout = () => {
+    return (
+      <>
+        <div>
+          <Paper className={classes.paper}>
+            <TableContainer component={Paper}>
+              <Table aria-label='simple table'>
+                <TableHead>
+                  <TableRow>
+                    <TableCell align='center'>Set</TableCell>
+                    <TableCell align='center'>Quantity</TableCell>
+                    <TableCell align='center'>Check In</TableCell>
+                    <TableCell align='center'>Check Out</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align='center'>
+                      <TextField
+                        select
+                        style={{ width: '100%' }}
+                        onChange={e => setHardwareDropDown(e.target.value)}
+                      >
+                        {openedProjectHardware.map(option => (
+                          <MenuItem
+                            key={option.hardware._id}
+                            value={option.hardware._id}
+                          >
+                            {option.hardware.name}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </TableCell>
+                    <TableCell align='center'>
+                      <Input
+                        type='number'
+                        onChange={e => setHardwareQty(e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell align='center'>
+                      <Button
+                        variant='contained'
+                        color='primary'
+                        disabled={hardwareDropDown === '' || hardwareQty === ''}
+                        onClick={handleCheckIn}
+                      >
+                        Check In
+                      </Button>
+                    </TableCell>
+                    <TableCell align='center'>
+                      <Button
+                        variant='contained'
+                        color='primary'
+                        disabled={hardwareDropDown === '' || hardwareQty === ''}
+                        onClick={handleCheckOut}
+                      >
+                        Check Out
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </div>
+        <div style={{ paddingTop: '1rem' }}>
+          {errorMessage ? (
+            <Collapse in={openedMessage}>
+              <Alert
+                style={{
+                  width: '50%',
+                  justifyContent: 'center',
+                  margin: 'auto'
+                }}
+                action={
+                  <IconButton
+                    aria-label='close'
+                    color='inherit'
+                    size='small'
+                    onClick={() => {
+                      setOpenedMessage(false);
+                    }}
+                  >
+                    <CloseIcon fontSize='inherit' />
+                  </IconButton>
+                }
+                severity='error'
+              >
+                {errorMessage}
+              </Alert>
+            </Collapse>
+          ) : null}
+          {successMessage ? (
+            <Collapse in={openedMessage}>
+              <Alert
+                style={{
+                  width: '50%',
+                  justifyContent: 'center',
+                  margin: 'auto'
+                }}
+                action={
+                  <IconButton
+                    aria-label='close'
+                    color='inherit'
+                    size='small'
+                    onClick={() => {
+                      setOpenedMessage(false);
+                    }}
+                  >
+                    <CloseIcon fontSize='inherit' />
+                  </IconButton>
+                }
+                severity='success'
+              >
+                {successMessage}
+              </Alert>
+            </Collapse>
+          ) : null}
+        </div>
+      </>
+    );
+  };
+  const renderHardwareSets = () => {
+    let res = [];
+    res.push(renderHardwareCheckout());
+    openedProjectHardware.forEach(element => {
+      res.push(
+        <Paper className={classes.paper}>
+          <TableContainer component={Paper}>
+            <Table aria-label='simple table'>
+              <TableHead>
+                <TableRow>
+                  <TableCell align='center'>Name</TableCell>
+                  <TableCell align='center'>Available</TableCell>
+                  <TableCell align='center'>Checked Out</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell align='center'>{element.hardware.name}</TableCell>
+                  <TableCell align='center'>
+                    {element.hardware.available > 10 ? (
+                      <Typography style={{ color: 'green' }}>
+                        {element.hardware.available}
+                      </Typography>
+                    ) : (
+                      <Typography style={{ color: 'red' }}>
+                        {element.hardware.available}
+                      </Typography>
+                    )}
+                  </TableCell>
+                  <TableCell align='center'>{element.checkedOut}</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody></TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      );
+    });
+    return res;
+  };
+  useEffect(async () => {
+    fetchAllProjects();
+    fetchAllHardwares();
+  }, [props.auth]);
   return (
     <Grid container spacing={1}>
       {!props.auth ? <Redirect to='/login' /> : <Redirect to='/projects' />}
@@ -137,172 +370,71 @@ const ProjectsScreen = props => {
       <Grid container item xs={12} spacing={3}>
         <React.Fragment>
           <Grid item xs={4}>
-            <Paper className={classes.paper}>
-              <TextField
-                variant='outlined'
-                margin='normal'
-                required
-                fullWidth
-                id='Project Name'
-                label='Project Name'
-                name='Project Name'
-                onChange={e => setName(e.target.value)}
-              />
-              <TextField
-                variant='outlined'
-                margin='normal'
-                required
-                fullWidth
-                id='Project Description'
-                label='Project Description'
-                name='Project Description'
-                onChange={e => setDescription(e.target.value)}
-              />
-              <Button onClick={handleOnSubmit}>
-                Create New Project <AddToPhotosIcon />
-              </Button>
-              {errorMessage ? (
-                <Alert
-                  className={classes.submit}
-                  style={{
-                    width: '100%',
-                    justifyContent: 'center'
-                  }}
-                  severity='error'
-                >
-                  {errorMessage}
-                </Alert>
-              ) : null}
-              {successMessage ? (
-                <Alert
-                  className={classes.submit}
-                  style={{
-                    width: '100%',
-                    justifyContent: 'center'
-                  }}
-                  severity='success'
-                >
-                  {successMessage}
-                </Alert>
-              ) : null}
-            </Paper>
+            <CreateProject fetchAllProjects={fetchAllProjects} />
+            {props.auth && props.auth.admin && (
+              <CreateHardware fetchAllHardwares={fetchAllHardwares} />
+            )}
           </Grid>
           <Grid item xs={8}>
-            <Paper className={classes.paper}>
-              <TableContainer component={Paper}>
-                <Table className={classes.table} aria-label='simple table'>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell align='right'>Project Name</TableCell>
-                      <TableCell align='right'>Project Description</TableCell>
-                      <TableCell align='right'>Creator</TableCell>
-                      <TableCell align='right'>ID</TableCell>
-                      <TableCell align='right'>Link</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {projects.map(project => (
-                      <TableRow key={project.projectName}>
-                        <TableCell component='th' scope='row'>
-                          {project.projectName}
-                        </TableCell>
-                        <TableCell align='right'>
-                          {project.description}
-                        </TableCell>
-                        <TableCell align='right'>{project.creator}</TableCell>
-                        <TableCell align='right'>{project._id}</TableCell>
-                        <Button
-                          variant='contained'
-                          color='primary'
-                          onClick={() => displayCurrProj(project)}
-                        >
-                          Open
-                        </Button>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-            {currProj.projectName ? (
-              <div>
-                <p>
-                  Creator: {currProj.creator}, ID: {currProj.id}
-                </p>
-                <div>
-                  <button
-                    onClick={() => {
-                      setHardware1(hardware1 => hardware1 + 1);
-                      updateAmounts(hw1Curr - 1, hw2Curr, hw1Av + 1, hw2Av);
-                    }}
-                  >
-                    Return (-1)
-                  </button>
-                  <button
-                    onClick={() => {
-                      setHardware1(hardware1 => hardware1 - 1);
-
-                      updateAmounts(hw1Curr + 1, hw2Curr, hw1Av - 1, hw2Av);
-                    }}
-                  >
-                    Check Out (+1){' '}
-                  </button>
-                  <p>HWSet1 Checked Out: {hw1Curr}</p>
-                </div>
-                <div>
-                  <button
-                    onClick={() => {
-                      setHardware2(hardware2 => hardware2 + 1);
-
-                      updateAmounts(hw1Curr, hw2Curr - 1, hw1Av, hw2Av + 1);
-                    }}
-                  >
-                    Return (-1)
-                  </button>
-                  <button
-                    onClick={() => {
-                      setHardware2(hardware2 => hardware2 - 1);
-
-                      updateAmounts(hw1Curr, hw2Curr + 1, hw1Av, hw2Av - 1);
-                    }}
-                  >
-                    Check Out (+1)
-                  </button>
-                  <p>HWSet2 Checked Out: {hw2Curr}</p>
-                </div>
-                <p>HWSet1 Available: {hw1Av}</p>
-                <p>HWSet2 Available: {hw2Av}</p>
-                <button onClick={handleMakeChanges}>Make Changes</button>
-              </div>
-            ) : null}
+            <ProjectTable
+              projects={projects}
+              onOpenProject={onOpenProject}
+              fetchAllProjects={fetchAllProjects}
+            />
+            {props.auth && props.auth.admin && (
+              <HardwareTable
+                hardwares={hardwares}
+                fetchAllHardwares={fetchAllHardwares}
+              />
+            )}
           </Grid>
         </React.Fragment>
       </Grid>
-      {successSnackbar ? (
-        <Snackbar
-          open
-          autoHideDuration={6000}
-          onClose={() => {
-            setSuccessSnackbar('');
-          }}
+
+      {openModal ? (
+        <Dialog
+          maxWidth='md'
+          fullWidth
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          aria-labelledby='form-dialog-title'
         >
-          <Alert autoHideDuration={100} severity='success'>
-            {successSnackbar}
-          </Alert>
-        </Snackbar>
-      ) : null}
-      {errorSnackbar ? (
-        <Snackbar
-          open
-          autoHideDuration={6000}
-          onClose={() => {
-            setErrorSnackbar('');
-          }}
-        >
-          <Alert autoHideDuration={100} severity='error'>
-            {errorSnackbar}
-          </Alert>
-        </Snackbar>
+          <AppBar
+            position='static'
+            style={{
+              paddingTop: '1rem',
+              paddingBottom: '1rem',
+              alignItems: 'center'
+            }}
+          >
+            <Typography align='center'>
+              {openedProject.projectName} - {openedProject.creator}
+            </Typography>
+          </AppBar>
+          <DialogContent>
+            <Typography variant='h5' align='center'>
+              Project Description
+            </Typography>
+            <Typography align='center'>{openedProject.description}</Typography>
+            <hr />
+          </DialogContent>
+          <DialogContent>
+            <Typography
+              variant='h5'
+              align='center'
+              style={{ paddingTop: '2rem' }}
+            >
+              Hardware Sets
+            </Typography>
+
+            {renderHardwareSets()}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={resetOnClose} color='primary'>
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       ) : null}
     </Grid>
   );
