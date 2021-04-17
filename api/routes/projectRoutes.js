@@ -1,5 +1,6 @@
 const Project = require('../models/Project');
 const CheckedOut = require('../models/CheckedOut');
+const HWset = require('../models/HWset');
 
 module.exports = app => {
   //Gets all projects in database
@@ -36,11 +37,32 @@ module.exports = app => {
     );
     res.json(project);
   });
-  // //Check in and out HWSets for project
-  // app.post('/api/projects/count', async (req, res) => {
-  //   const { id, hw1Curr, hw2Curr } = req.body;
-  //   await Project.updateOne({ _id: id }, { $set: { HW1Amt: hw1Curr } });
-  //   await Project.updateOne({ _id: id }, { $set: { HW2Amt: hw2Curr } });
-  //   res.send({ message: 'success' });
-  // });
+  //Check in HWSets for project
+  app.post('/api/projects/checkin', async (req, res) => {
+    const { hardwareId, checkedId, qty } = req.body;
+    //Updates checkedOut
+    await CheckedOut.updateOne(
+      { _id: checkedId },
+      { $inc: { checkedOut: -Number(qty) } }
+    );
+    await HWset.updateOne(
+      { _id: hardwareId },
+      { $inc: { available: Number(qty) } }
+    );
+    res.json({ message: 'Succesfully Checked In.' });
+  });
+  //Check out HWSets for project
+  app.post('/api/projects/checkout', async (req, res) => {
+    const { hardwareId, checkedId, qty } = req.body;
+    //Updates checkedOut
+    await CheckedOut.updateOne(
+      { _id: checkedId },
+      { $inc: { checkedOut: Number(qty) } }
+    );
+    await HWset.updateOne(
+      { _id: hardwareId },
+      { $inc: { available: -Number(qty) } }
+    );
+    res.json({ message: 'Succesfully Checked Out.' });
+  });
 };

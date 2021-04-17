@@ -6,7 +6,16 @@ import {
   Typography,
   Dialog,
   DialogActions,
-  DialogContent
+  DialogContent,
+  TableCell,
+  TableRow,
+  TableBody,
+  Table,
+  TableHead,
+  TableContainer,
+  Paper,
+  TextField,
+  MenuItem
 } from '@material-ui/core';
 import axios from 'axios';
 import { connect } from 'react-redux';
@@ -15,13 +24,52 @@ import CreateProject from '../components/CreateProject';
 import CreateHardware from '../components/CreateHardware';
 import ProjectTable from '../components/ProjectTable';
 import HardwareTable from '../components/HardwareTable';
-
+import { makeStyles } from '@material-ui/core/styles';
+const useStyles = makeStyles(theme => ({
+  paper: {
+    marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'
+  }
+}));
 const ProjectsScreen = props => {
+  const classes = useStyles();
   const [projects, setProjects] = useState([]);
   const [hardwares, setHardwares] = useState([]);
   const [openedProject, setOpenedProject] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [openedProjectHardware, setOpenedProjectHardware] = useState([]);
+  //On open of project, for checking in and out hardware sets (dropdown menu)
+  const [hardwareDropDown, setHardwareDropDown] = useState('');
+  const [hardwareQty, setHardwareQty] = useState('');
+  const handleCheckIn = () => {
+    let checkedOutElement = '';
+    openedProjectHardware.forEach(element => {
+      if (element.hardware._id === hardwareDropDown) {
+        checkedOutElement = element._id;
+      }
+    });
+
+    axios.post('/api/projects/checkin', {
+      hardwareId: hardwareDropDown,
+      checkedId: checkedOutElement,
+      qty: hardwareQty
+    });
+  };
+  const handleCheckOut = () => {
+    let checkedOutElement = '';
+    openedProjectHardware.forEach(element => {
+      if (element.hardware._id === hardwareDropDown) {
+        checkedOutElement = element._id;
+      }
+    });
+    axios.post('/api/projects/checkout', {
+      hardwareId: hardwareDropDown,
+      checkedId: checkedOutElement,
+      qty: hardwareQty
+    });
+  };
   const fetchAllProjects = async () => {
     await axios.get('/api/projects/all').then(projects => {
       setProjects(projects.data);
@@ -33,6 +81,8 @@ const ProjectsScreen = props => {
     });
   };
   const onOpenProject = async project => {
+    setHardwareDropDown('');
+    setHardwareQty('');
     fetchAllHardwares();
     //Gets all of the current opened project's hardware ids
     const projectHardwareIds = project.checkedOut.map(
@@ -98,16 +148,103 @@ const ProjectsScreen = props => {
     });
     await Promise.all(hardwareArray).then(res => setOpenedProjectHardware(res));
   };
+  const renderHardwareCheckout = () => {
+    return (
+      <Paper className={classes.paper}>
+        <TableContainer component={Paper}>
+          <Table aria-label='simple table'>
+            <TableHead>
+              <TableRow>
+                <TableCell align='center'>Set</TableCell>
+                <TableCell align='center'>Quantity</TableCell>
+                <TableCell align='center'>Check In</TableCell>
+                <TableCell align='center'>Check Out</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell align='center'>
+                  <TextField
+                    select
+                    style={{ width: '100%' }}
+                    onChange={e => setHardwareDropDown(e.target.value)}
+                  >
+                    {openedProjectHardware.map(option => (
+                      <MenuItem
+                        key={option.hardware._id}
+                        value={option.hardware._id}
+                      >
+                        {option.hardware.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </TableCell>
+                <TableCell align='center'>
+                  <TextField
+                    variant='outlined'
+                    style={{ width: '20%' }}
+                    onChange={e => setHardwareQty(e.target.value)}
+                  />
+                </TableCell>
+                <TableCell align='center'>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    disabled={hardwareDropDown === '' || hardwareQty === ''}
+                    onClick={handleCheckIn}
+                  >
+                    Check In
+                  </Button>
+                </TableCell>
+                <TableCell align='center'>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    disabled={hardwareDropDown === '' || hardwareQty === ''}
+                    onClick={handleCheckOut}
+                  >
+                    Check Out
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableHead>
+          </Table>
+        </TableContainer>
+      </Paper>
+    );
+  };
   const renderHardwareSets = () => {
     let res = [];
+    res.push(renderHardwareCheckout());
     openedProjectHardware.forEach(element => {
       res.push(
-        <>
-          <Typography align='center'>{element.hardware.name}</Typography>
-          <Typography align='center'>
-            Checked out: {element.checkedOut}
-          </Typography>
-        </>
+        <Paper className={classes.paper}>
+          <TableContainer component={Paper}>
+            <Table aria-label='simple table'>
+              <TableHead>
+                <TableRow>
+                  <TableCell align='center'>Name</TableCell>
+                  <TableCell align='center'>Available</TableCell>
+                  <TableCell align='center'>Checked Out</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell align='center'>{element.hardware.name}</TableCell>
+                  <TableCell align='center'>
+                    {element.hardware.available > 10 ? (
+                      <Typography style={{ color: 'green' }}>
+                        {element.hardware.available}
+                      </Typography>
+                    ) : (
+                      <Typography style={{ color: 'red' }}>
+                        {element.hardware.available}
+                      </Typography>
+                    )}
+                  </TableCell>
+                  <TableCell align='center'>{element.checkedOut}</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody></TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
       );
     });
     return res;
@@ -165,15 +302,33 @@ const ProjectsScreen = props => {
             </Typography>
           </AppBar>
           <DialogContent>
+            <Typography variant='h5' align='center'>
+              Project Description
+            </Typography>
             <Typography align='center'>{openedProject.description}</Typography>
+            <hr />
           </DialogContent>
-          <DialogContent>{renderHardwareSets()}</DialogContent>
+          <DialogContent>
+            <Typography
+              variant='h5'
+              align='center'
+              style={{ paddingTop: '2rem' }}
+            >
+              Hardware Sets
+            </Typography>
+
+            {renderHardwareSets()}
+          </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpenModal(false)} color='primary'>
-              Cancel
-            </Button>
-            <Button onClick={() => setOpenModal(false)} color='primary'>
-              Make Changes
+            <Button
+              onClick={() => {
+                setHardwareDropDown('');
+                setHardwareQty('');
+                setOpenModal(false);
+              }}
+              color='primary'
+            >
+              Close
             </Button>
           </DialogActions>
         </Dialog>
