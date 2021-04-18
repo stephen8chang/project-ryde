@@ -76,11 +76,9 @@ const ProjectsScreen = props => {
       }
     });
     if (checkedOutQty < Number(hardwareQty)) {
-      console.log('Project dos not own enough sets.');
       setSuccessMessage('');
       setErrorMessage('Project does not own enough sets.');
     } else if (Number(hardwareQty) < 0) {
-      console.log('Please enter a value of at least 1.');
       setSuccessMessage('');
       setErrorMessage('Please enter a value of at least 1.');
     } else {
@@ -103,13 +101,10 @@ const ProjectsScreen = props => {
         hardwareQtyAvailable = element.hardware.available;
       }
     });
-    console.log(hardwareQtyAvailable, hardwareQty);
     if (hardwareQtyAvailable < Number(hardwareQty)) {
-      console.log('Not enough hardware sets to check out.');
       setSuccessMessage('');
       setErrorMessage('Not enough hardware sets to check out.');
     } else if (Number(hardwareQty) < 0) {
-      console.log('Please enter a value of at least 1.');
       setSuccessMessage('');
       setErrorMessage('Please enter a value of at least 1.');
     } else {
@@ -166,7 +161,6 @@ const ProjectsScreen = props => {
         }
       });
     });
-    console.log(missingHardwareSets);
     if (missingHardwareSets) {
       const checkedOut = await axios.post('/api/checked/create', {
         hardwareSets: missingHardwareSets
