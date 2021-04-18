@@ -26,6 +26,11 @@ module.exports = app => {
   });
   app.get('/api/projects/delete/:id', async (req, res) => {
     const { id } = req.params;
+    const project = await Project.findOne({ _id: id });
+    //Loops through project's checkedOut array and deletes the CheckedOut schema object associated
+    project.checkedOut.forEach(async checkedOutId => {
+      await CheckedOut.deleteOne({ _id: checkedOutId });
+    });
     await Project.deleteOne({ _id: id });
     res.send({ message: `Project deleted!` });
   });

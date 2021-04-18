@@ -27,6 +27,7 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
 import CreateProject from '../components/CreateProject';
 import CreateHardware from '../components/CreateHardware';
+import AddUsers from '../components/AddUsers';
 import ProjectTable from '../components/ProjectTable';
 import HardwareTable from '../components/HardwareTable';
 import { makeStyles } from '@material-ui/core/styles';
@@ -38,7 +39,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center'
   }
 }));
-const ProjectsScreen = props => {
+const ProjectsScreen = ({ auth }) => {
   const classes = useStyles();
   const [projects, setProjects] = useState([]);
   const [hardwares, setHardwares] = useState([]);
@@ -356,16 +357,17 @@ const ProjectsScreen = props => {
   useEffect(async () => {
     fetchAllProjects();
     fetchAllHardwares();
-  }, [props.auth]);
+  }, [auth]);
   return (
     <Grid container spacing={1}>
-      {!props.auth ? <Redirect to='/login' /> : <Redirect to='/projects' />}
+      {!auth ? <Redirect to='/login' /> : <Redirect to='/projects' />}
 
       <Grid container item xs={12} spacing={3}>
         <React.Fragment>
           <Grid item xs={4}>
             <CreateProject fetchAllProjects={fetchAllProjects} />
-            {props.auth && props.auth.admin && (
+            {/* <AddUsers fetchAllProjects={fetchAllProjects} /> */}
+            {auth && auth.admin && (
               <CreateHardware fetchAllHardwares={fetchAllHardwares} />
             )}
           </Grid>
@@ -375,7 +377,7 @@ const ProjectsScreen = props => {
               onOpenProject={onOpenProject}
               fetchAllProjects={fetchAllProjects}
             />
-            {props.auth && props.auth.admin && (
+            {auth && auth.admin && (
               <HardwareTable
                 hardwares={hardwares}
                 fetchAllHardwares={fetchAllHardwares}
