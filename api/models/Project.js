@@ -5,8 +5,9 @@ const projectSchema = new Schema({
   creator: String,
   projectName: String,
   description: String,
-  HW1Amt: Number,
-  HW2Amt: Number,
+  checkedOut: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'checkedOut', default: [] }
+  ],
   access: Boolean
 });
 

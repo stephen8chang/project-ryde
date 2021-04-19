@@ -9,7 +9,8 @@ module.exports = app => {
         firstName,
         lastName,
         email,
-        password
+        password,
+        admin: false
       });
       await user.save();
       res.send({ message: 'Registered!', redirectUrl: '/login' });
