@@ -31,15 +31,15 @@ const NavBar = props => {
           aria-label='menu'
         ></IconButton>
         <Typography variant='h6' className={classes.title}>
-          {props.auth ? `Welcome ${props.auth.firstName}` : 'Ryde'}
+          {props.auth
+            ? `Welcome ${props.auth.firstName} ${props.auth.lastName}`
+            : 'Ryde'}
+        </Typography>
+        <Typography variant='h6' className={classes.title}>
+          {props.auth ? `${props.auth.email}` : null}
         </Typography>
         {props.auth ? (
           <>
-            <Button color='inherit'>
-              <a style={{ textDecoration: 'none', color: 'white' }} href='/'>
-                Home
-              </a>
-            </Button>
             <Button color='inherit'>
               <a
                 style={{ textDecoration: 'none', color: 'white' }}

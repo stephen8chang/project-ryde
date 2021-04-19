@@ -9,7 +9,8 @@ module.exports = app => {
         firstName,
         lastName,
         email,
-        password
+        password,
+        admin: false
       });
       await user.save();
       res.send({ message: 'Registered!', redirectUrl: '/login' });
@@ -44,8 +45,4 @@ module.exports = app => {
     req.session.destroy(err => {});
     res.redirect('/');
   });
-
-  app.get('/api/getUserInfo', async (req, res) => {
-    
-  })
 };

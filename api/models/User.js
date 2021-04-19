@@ -7,8 +7,9 @@ const userSchema = new Schema({
   lastName: String,
   email: String,
   password: String,
+  admin: Boolean
 });
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function(next) {
   const user = this;
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);

@@ -1,6 +1,5 @@
-import './App.css';
 import React, { Component } from 'react';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import DashboardScreen from './screens/DashboardScreen';
@@ -17,18 +16,17 @@ class App extends Component {
     return (
       <div className='container'>
         <NavBar />
-        <BrowserRouter>
-          <div className='container'>
+        <Router>
+          <Switch>
             <Route exact path='/' component={DashboardScreen} />
             <Route path='/register' component={RegisterScreen} />
             <Route path='/login' component={LoginScreen} />
             <Route path='/dataset' component={DatasetScreen} />
             <Route path='/projects' component={ProjectsScreen} />
-          </div>
-        </BrowserRouter>
+          </Switch>
+        </Router>
       </div>
     );
   }
 }
-
 export default connect(null, actions)(App);

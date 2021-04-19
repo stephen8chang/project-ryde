@@ -14,6 +14,8 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 import { useHistory } from 'react-router';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -35,7 +37,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function RegisterScreen() {
+function RegisterScreen(props) {
   const classes = useStyles();
   const history = useHistory();
   const [firstName, setFirstName] = useState('');
@@ -44,8 +46,11 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [matchingPassword, setMatchingPassword] = useState(true);
   const handleOnSubmit = async () => {
+    if (!checkValidEmail(email)) {
+      setErrorMessage('Enter a valid email');
+      return;
+    }
     let { data } = await axios.post('/api/register', {
       firstName,
       lastName,
@@ -60,6 +65,19 @@ export default function RegisterScreen() {
       }
     }
   };
+  const checkValidEmail = mail => {
+    if (mail === '') {
+      return false;
+    }
+    if (
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+        mail.toLowerCase()
+      )
+    ) {
+      return true;
+    }
+    return false;
+  };
   useEffect(() => {
     if (password !== '' && confirmPassword !== '') {
       if (password !== confirmPassword) {
@@ -67,10 +85,14 @@ export default function RegisterScreen() {
       } else {
         setErrorMessage('');
       }
+    } else {
+      setErrorMessage('');
     }
   }, [confirmPassword, password]);
   return (
     <Container component='main' maxWidth='xs'>
+      {!props.auth ? <Redirect to='/register' /> : <Redirect to='/projects' />}
+
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -172,3 +194,8 @@ export default function RegisterScreen() {
     </Container>
   );
 }
+
+const mapStateToProps = state => {
+  return { auth: state.auth };
+};
+export default connect(mapStateToProps)(RegisterScreen);
