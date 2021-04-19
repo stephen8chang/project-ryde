@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(3, 0, 2)
   }
 }));
-const CreateProject = ({ auth, fetchAllProjects }) => {
+const AddUsers = ({ auth, fetchAllProjects }) => {
   const classes = useStyles();
 
   const [name, setName] = useState('');
@@ -69,7 +69,7 @@ const CreateProject = ({ auth, fetchAllProjects }) => {
           alignItems: 'center'
         }}
       >
-        <Typography variant='h6'>Create New Project</Typography>
+        <Typography variant='h6'>Add Users To Project</Typography>
       </AppBar>
 
       <TextField
@@ -150,4 +150,4 @@ const CreateProject = ({ auth, fetchAllProjects }) => {
 const mapStateToProps = state => {
   return { auth: state.auth };
 };
-export default connect(mapStateToProps)(CreateProject);
+export default connect(mapStateToProps)(AddUsers);

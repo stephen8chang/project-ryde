@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const HardwareTable = ({ hardwares }) => {
+const HardwareTable = ({ hardwares, fetchAllHardwares }) => {
   const classes = useStyles();
   const [successMessage, setSuccessMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -37,6 +37,7 @@ const HardwareTable = ({ hardwares }) => {
       setSuccessMessage(payload.data.message);
       setSnackbarOpen(true);
     });
+    fetchAllHardwares();
   };
   return (
     <Paper className={classes.paper}>

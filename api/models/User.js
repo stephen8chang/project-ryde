@@ -7,6 +7,9 @@ const userSchema = new Schema({
   lastName: String,
   email: String,
   password: String,
+  createdProjects: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'projects', default: [] }
+  ],
   admin: Boolean
 });
 userSchema.pre('save', async function(next) {

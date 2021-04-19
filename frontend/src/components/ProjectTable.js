@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center'
   }
 }));
-const ProjectTable = ({ projects, onOpenProject, auth }) => {
+const ProjectTable = ({ projects, onOpenProject, auth, fetchAllProjects }) => {
   const classes = useStyles();
   const [successMessage, setSuccessMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -34,6 +34,7 @@ const ProjectTable = ({ projects, onOpenProject, auth }) => {
       setSuccessMessage(payload.data.message);
       setSnackbarOpen(true);
     });
+    fetchAllProjects();
   };
   const handleButtonDisable = ({ creator }) => {
     if (auth && auth.admin) {
@@ -54,7 +55,6 @@ const ProjectTable = ({ projects, onOpenProject, auth }) => {
               <TableCell align='center'>Project Name</TableCell>
               <TableCell align='center'>Project Description</TableCell>
               <TableCell align='center'>Creator</TableCell>
-              <TableCell align='center'>ID</TableCell>
               <TableCell align='center'>Link</TableCell>
               <TableCell align='center'>Delete</TableCell>
             </TableRow>
@@ -67,7 +67,6 @@ const ProjectTable = ({ projects, onOpenProject, auth }) => {
                 </TableCell>
                 <TableCell align='center'>{project.description}</TableCell>
                 <TableCell align='center'>{project.creator}</TableCell>
-                <TableCell align='center'>{project._id}</TableCell>
                 <TableCell align='center'>
                   <Button
                     variant='contained'
