@@ -260,6 +260,24 @@ const ProjectsScreen = props => {
                     </TableCell>
                   </TableRow>
                 </TableHead>
+                <TableHead >
+                  <TableRow align="center">
+                    <TableCell align='center'>
+                      <Input
+                        type='number'
+                        placeholder='Add More Funds'
+                      />
+                    </TableCell>
+                    <TableCell align='center'>
+                      <Button
+                        variant='contained'
+                        color='primary'
+                      >
+                        Add to Project
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
               </Table>
             </TableContainer>
           </Paper>
@@ -332,11 +350,13 @@ const ProjectsScreen = props => {
               <TableHead>
                 <TableRow>
                   <TableCell align='center'>Name</TableCell>
+                  <TableCell align='center'>Funds Per Hardware</TableCell>
                   <TableCell align='center'>Available</TableCell>
                   <TableCell align='center'>Checked Out</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell align='center'>{element.hardware.name}</TableCell>
+                  <TableCell align='center'>{element.hardware.fundsPer}</TableCell>
                   <TableCell align='center'>
                     {element.hardware.available > 10 ? (
                       <Typography style={{ color: 'green' }}>
