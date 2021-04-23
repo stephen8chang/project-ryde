@@ -51,6 +51,7 @@ const ProjectsScreen = props => {
   //On open of project, for checking in and out hardware sets (dropdown menu)
   const [hardwareDropDown, setHardwareDropDown] = useState('');
   const [hardwareQty, setHardwareQty] = useState('');
+  const [addMoreFunds, setAddMoreFunds] = useState('');
   useEffect(() => {
     if (errorMessage !== '') {
       setSuccessMessage('');
@@ -123,6 +124,26 @@ const ProjectsScreen = props => {
     }
     setOpenedMessage(true);
   };
+  const handleAddMoreFunds = () => {
+    // current value in addMoreFunds
+    // current project in openedProject
+    if (Number(addMoreFunds) <= 0) {
+      setSuccessMessage('');
+      setErrorMessage('Please enter a value of at least 1.');
+    }
+    else {
+      setErrorMessage('');
+      setSuccessMessage('Successfully updated funds.');
+      axios.post('/api/projects/addFunds', {
+        funds: addMoreFunds,
+        id: openedProject._id
+      });
+    }
+    setAddMoreFunds('');
+    setOpenedMessage(true);
+    window.location.reload(false);
+  }
+
   const fetchAllProjects = async () => {
     await axios.get('/api/projects/all').then(projects => {
       setProjects(projects.data);
@@ -263,15 +284,20 @@ const ProjectsScreen = props => {
                 <TableHead >
                   <TableRow align="center">
                     <TableCell align='center'>
+                      <b>Current Funds: {openedProject.funds}</b>
+                    </TableCell>
+                    <TableCell align='center'>
                       <Input
                         type='number'
                         placeholder='Add More Funds'
+                        onChange={e => setAddMoreFunds(e.target.value)}
                       />
                     </TableCell>
                     <TableCell align='center'>
                       <Button
                         variant='contained'
                         color='primary'
+                        onClick={handleAddMoreFunds}
                       >
                         Add to Project
                       </Button>

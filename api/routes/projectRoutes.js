@@ -25,6 +25,14 @@ module.exports = app => {
     await project.save();
     res.send({ message: `Project named ${projectName} created!` });
   });
+  app.post('/api/projects/addFunds', async (req, res) => {
+    const { funds, id } = req.body;
+    const project = await Project.updateOne(
+      { _id: id },
+      { $inc: { funds: funds } }
+    );
+    res.json(project);
+  });
   app.get('/api/projects/delete/:id', async (req, res) => {
     const { id } = req.params;
     await Project.deleteOne({ _id: id });
