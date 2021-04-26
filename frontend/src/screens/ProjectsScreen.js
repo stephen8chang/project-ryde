@@ -66,13 +66,17 @@ const ProjectsScreen = props => {
     setSuccessMessage('');
     setOpenModal(false);
     setOpenedMessage(false);
+    fetchAllProjects();
+    fetchAllHardwares();
   };
   const handleCheckIn = () => {
     let checkedOutElement = '';
     let checkedOutQty = 0;
+    let checkedOutEntireElement = null;
     openedProjectHardware.forEach(element => {
       if (element.hardware._id === hardwareDropDown) {
         checkedOutElement = element._id;
+        checkedOutEntireElement = element;
         checkedOutQty = element.checkedOut;
       }
     });
@@ -90,17 +94,21 @@ const ProjectsScreen = props => {
       axios.post('/api/projects/checkin', {
         hardwareId: hardwareDropDown,
         checkedId: checkedOutElement,
-        qty: hardwareQty
+        projectId: openedProject._id,
+        qty: Number(hardwareQty),
+        fundsPer: checkedOutEntireElement.hardware.fundsPer
       });
     }
     setOpenedMessage(true);
   };
-  const handleCheckOut = () => {
+  const handleCheckOut = async () => {
     let checkedOutElement = '';
+    let checkedOutEntireElement = null;
     let hardwareQtyAvailable = 0;
     openedProjectHardware.forEach(element => {
       if (element.hardware._id === hardwareDropDown) {
         checkedOutElement = element._id;
+        checkedOutEntireElement = element;
         hardwareQtyAvailable = element.hardware.available;
       }
     });
@@ -116,10 +124,13 @@ const ProjectsScreen = props => {
     } else {
       setErrorMessage('');
       setSuccessMessage('Successfully updated.');
-      axios.post('/api/projects/checkout', {
+
+      await axios.post('/api/projects/checkout', {
         hardwareId: hardwareDropDown,
         checkedId: checkedOutElement,
-        qty: hardwareQty
+        projectId: openedProject._id,
+        qty: Number(hardwareQty),
+        fundsPer: checkedOutEntireElement.hardware.fundsPer
       });
     }
     setOpenedMessage(true);

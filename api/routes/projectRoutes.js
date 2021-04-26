@@ -48,8 +48,10 @@ module.exports = app => {
   });
   //Check in HWSets for project
   app.post('/api/projects/checkin', async (req, res) => {
-    const { hardwareId, checkedId, qty } = req.body;
+    const { hardwareId, checkedId, projectId, qty, fundsPer } = req.body;
+
     //Updates checkedOut
+    let temp = qty * fundsPer
     await CheckedOut.updateOne(
       { _id: checkedId },
       { $inc: { checkedOut: -Number(qty) } }
@@ -58,12 +60,19 @@ module.exports = app => {
       { _id: hardwareId },
       { $inc: { available: Number(qty) } }
     );
+    await Project.updateOne(
+      { _id: projectId },
+      { $inc: { funds: temp } }
+    )
     res.json({ message: 'Succesfully Checked In.' });
   });
   //Check out HWSets for project
   app.post('/api/projects/checkout', async (req, res) => {
-    const { hardwareId, checkedId, qty } = req.body;
+    const { hardwareId, checkedId, projectId, qty, fundsPer } = req.body;
+
     //Updates checkedOut
+    let temp = qty * fundsPer
+    console.log(temp)
     await CheckedOut.updateOne(
       { _id: checkedId },
       { $inc: { checkedOut: Number(qty) } }
@@ -72,6 +81,10 @@ module.exports = app => {
       { _id: hardwareId },
       { $inc: { available: -Number(qty) } }
     );
+    await Project.updateOne(
+      { _id: projectId },
+      { $inc: { funds: -temp } }
+    )
     res.json({ message: 'Succesfully Checked Out.' });
   });
 };
