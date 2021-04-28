@@ -9,6 +9,9 @@ const projectSchema = new Schema({
   checkedOut: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'checkedOut', default: [] }
   ],
+  projectUsers: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'users', default: [] }
+  ],
   access: Boolean
 });
 

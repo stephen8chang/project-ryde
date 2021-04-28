@@ -42,6 +42,7 @@ const ProjectsScreen = props => {
   const classes = useStyles();
   const [projects, setProjects] = useState([]);
   const [hardwares, setHardwares] = useState([]);
+  const [users, setUsers] = useState([]);
   const [openedProject, setOpenedProject] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [openedProjectHardware, setOpenedProjectHardware] = useState([]);
@@ -50,6 +51,7 @@ const ProjectsScreen = props => {
   const [openedMessage, setOpenedMessage] = useState(false);
   //On open of project, for checking in and out hardware sets (dropdown menu)
   const [hardwareDropDown, setHardwareDropDown] = useState('');
+  const [userDropDown, setUserDropDown] = useState('');
   const [hardwareQty, setHardwareQty] = useState('');
   const [addMoreFunds, setAddMoreFunds] = useState('');
   useEffect(() => {
@@ -155,6 +157,23 @@ const ProjectsScreen = props => {
     window.location.reload(false);
   }
 
+  const handleAddUser = () => {
+    console.log(userDropDown)
+    if (openedProject.projectUsers.includes(userDropDown)) {
+      setSuccessMessage('');
+      setErrorMessage('User already added to project');
+    }
+    else {
+      setErrorMessage('');
+      setSuccessMessage('User added to project.');
+      axios.post('/api/projects/addUser', {
+        userToAdd: userDropDown,
+        id: openedProject._id
+      });
+    }
+    setUserDropDown('')
+    setOpenedMessage(true)
+  }
   const fetchAllProjects = async () => {
     await axios.get('/api/projects/all').then(projects => {
       setProjects(projects.data);
@@ -165,10 +184,18 @@ const ProjectsScreen = props => {
       setHardwares(hardware.data);
     });
   };
+  const fetchAllUsers = async () => {
+    console.log("inside fetch all users")
+    await axios.get('/api/user/all').then(fetchedUsers => {
+      setUsers(fetchedUsers);
+      console.log(users.data);
+    });
+  }
   const onOpenProject = async project => {
     setHardwareDropDown('');
     setHardwareQty('');
     fetchAllHardwares();
+    fetchAllUsers();
     //Gets all of the current opened project's hardware ids
     const projectHardwareIds = project.checkedOut.map(
       element => element.hardware
@@ -198,7 +225,7 @@ const ProjectsScreen = props => {
         }
       });
     });
-    console.log(missingHardwareSets);
+    //console.log(missingHardwareSets);
     if (missingHardwareSets) {
       const checkedOut = await axios.post('/api/checked/create', {
         hardwareSets: missingHardwareSets
@@ -310,7 +337,39 @@ const ProjectsScreen = props => {
                         color='primary'
                         onClick={handleAddMoreFunds}
                       >
-                        Add to Project
+                        Add Funds to Project
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableHead >
+                  <TableRow align="center">
+                    <TableCell align='center'>
+                      <p>Number of users: {users.data.length}</p>
+                    </TableCell>
+                    <TableCell align='center'>
+                      <TextField
+                        select
+                        style={{ width: '100%' }}
+                        onChange={e => setUserDropDown(e.target.value)}
+                      >
+                        {users.data.map(user => (
+                          <MenuItem
+                            key={user._id}
+                            value={user._id}
+                          >
+                            {user.firstName}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </TableCell>
+                    <TableCell align='center'>
+                      <Button
+                        variant='contained'
+                        color='primary'
+                        onClick={handleAddUser}
+                      >
+                        Add User to Project
                       </Button>
                     </TableCell>
                   </TableRow>

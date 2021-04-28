@@ -33,6 +33,14 @@ module.exports = app => {
     );
     res.json(project);
   });
+  app.post('/api/projects/addUser', async (req, res) => {
+    const { userToAdd, id } = req.body;
+    const project = await Project.updateOne(
+      { _id: id },
+      { $push: { projectUsers: userToAdd } }
+    );
+    res.json(project);
+  });
   app.get('/api/projects/delete/:id', async (req, res) => {
     const { id } = req.params;
     await Project.deleteOne({ _id: id });
