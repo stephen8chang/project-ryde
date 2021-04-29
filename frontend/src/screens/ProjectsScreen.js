@@ -44,6 +44,7 @@ const ProjectsScreen = props => {
   const [hardwares, setHardwares] = useState([]);
   const [users, setUsers] = useState([]);
   const [openedProject, setOpenedProject] = useState({});
+  const [openedProjectAddedUsers, setOpenedProjectAddedUsers] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [openedProjectHardware, setOpenedProjectHardware] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -185,10 +186,8 @@ const ProjectsScreen = props => {
     });
   };
   const fetchAllUsers = async () => {
-    console.log("inside fetch all users")
     await axios.get('/api/user/all').then(fetchedUsers => {
       setUsers(fetchedUsers);
-      console.log(users.data);
     });
   }
   const onOpenProject = async project => {
@@ -200,6 +199,10 @@ const ProjectsScreen = props => {
     const projectHardwareIds = project.checkedOut.map(
       element => element.hardware
     );
+
+    //Gets all of the users for openedProject
+    setOpenedProjectAddedUsers(project.projectUsers)
+
     //Gets all of the hardware ids available
     const hardwareIds = hardwares.map(element => element._id);
     let missingHardwareIds = [];
@@ -260,6 +263,27 @@ const ProjectsScreen = props => {
     });
     await Promise.all(hardwareArray).then(res => setOpenedProjectHardware(res));
   };
+  const handleButtonDisable = (creator) => {
+    // console.log("creator", creator)
+    // console.log("props.auth", props.auth)
+    // console.log("props.auth.admin", props.auth.admin)
+    // console.log("props.auth.email", props.auth.email)
+    // console.log("props.auth && props.auth.admin =", props.auth && props.auth.admin)
+    // console.log("creator === props.auth.email =", creator === props.auth.email)
+    // console.log("openedProjectAddedUsers", openedProjectAddedUsers)
+    // console.log("props.auth._id", props.auth._id)
+    if (props.auth && props.auth.admin) {
+      return false;
+    } else if (creator === props.auth.email) {
+      return false;
+    }
+    else if (openedProjectAddedUsers.includes(props.auth._id)) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  };
   const renderHardwareCheckout = () => {
     return (
       <>
@@ -301,7 +325,7 @@ const ProjectsScreen = props => {
                       <Button
                         variant='contained'
                         color='primary'
-                        disabled={hardwareDropDown === '' || hardwareQty === ''}
+                        disabled={hardwareDropDown === '' || hardwareQty === '' || handleButtonDisable(openedProject.creator)}
                         onClick={handleCheckIn}
                       >
                         Check In
@@ -311,7 +335,7 @@ const ProjectsScreen = props => {
                       <Button
                         variant='contained'
                         color='primary'
-                        disabled={hardwareDropDown === '' || hardwareQty === ''}
+                        disabled={hardwareDropDown === '' || hardwareQty === '' || handleButtonDisable(openedProject.creator)}
                         onClick={handleCheckOut}
                       >
                         Check Out
@@ -336,6 +360,7 @@ const ProjectsScreen = props => {
                         variant='contained'
                         color='primary'
                         onClick={handleAddMoreFunds}
+                        disabled={addMoreFunds == '' || handleButtonDisable(openedProject.creator)}
                       >
                         Add Funds to Project
                       </Button>
@@ -368,6 +393,7 @@ const ProjectsScreen = props => {
                         variant='contained'
                         color='primary'
                         onClick={handleAddUser}
+                        disabled={userDropDown == '' || handleButtonDisable(openedProject.creator)}
                       >
                         Add User to Project
                       </Button>
