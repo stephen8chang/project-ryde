@@ -31,6 +31,22 @@ import AddUsers from '../components/AddUsers';
 import ProjectTable from '../components/ProjectTable';
 import HardwareTable from '../components/HardwareTable';
 import { makeStyles } from '@material-ui/core/styles';
+
+export const fetchAllProjectsMirror = async () => {
+  await axios.get('/api/hardware/all').then(projects => {
+    return projects.data;
+  });
+};
+export const fetchAllHardwaresMirror = async () => {
+  await axios.get('/api/hardware/all').then(hardware => {
+    return hardware.data;
+  });
+};
+export const onCloseMirror = async (id) => {
+  let hardware = await axios.get('/api/checked/hardware/' + id);
+  return hardware.data[0];
+}
+
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
