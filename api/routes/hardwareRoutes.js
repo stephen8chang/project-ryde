@@ -11,10 +11,11 @@ module.exports = app => {
     res.json(hw);
   });
   app.post('/api/hardware/create', async (req, res) => {
-    const { name, available } = req.body;
+    const { name, available, fundsPer } = req.body;
     const hardware = new HWset({
       name,
-      available
+      available,
+      fundsPer
     });
     await hardware.save();
     res.send({ message: `Hardware set named ${name} created!` });

@@ -55,7 +55,7 @@ const ProjectTable = ({ projects, onOpenProject, auth, fetchAllProjects }) => {
               <TableCell align='center'>Project Name</TableCell>
               <TableCell align='center'>Project Description</TableCell>
               <TableCell align='center'>Creator</TableCell>
-              <TableCell align='center'>ID</TableCell>
+              <TableCell align='center'>Funds</TableCell>
               <TableCell align='center'>Link</TableCell>
               <TableCell align='center'>Delete</TableCell>
             </TableRow>
@@ -68,7 +68,7 @@ const ProjectTable = ({ projects, onOpenProject, auth, fetchAllProjects }) => {
                 </TableCell>
                 <TableCell align='center'>{project.description}</TableCell>
                 <TableCell align='center'>{project.creator}</TableCell>
-                <TableCell align='center'>{project._id}</TableCell>
+                <TableCell align='center'>{project.funds}</TableCell>
                 <TableCell align='center'>
                   <Button
                     variant='contained'
