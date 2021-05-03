@@ -12,6 +12,8 @@ import {
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -33,7 +35,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function LoginScreen() {
+function LoginScreen(props) {
   const classes = useStyles();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,6 +52,7 @@ export default function LoginScreen() {
   };
   return (
     <Container component='main' maxWidth='xs'>
+      {!props.auth ? <Redirect to='/login' /> : <Redirect to='/projects' />}
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -108,3 +111,7 @@ export default function LoginScreen() {
     </Container>
   );
 }
+const mapStateToProps = state => {
+  return { auth: state.auth };
+};
+export default connect(mapStateToProps)(LoginScreen);

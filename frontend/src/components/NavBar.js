@@ -30,21 +30,16 @@ const NavBar = props => {
           color='inherit'
           aria-label='menu'
         ></IconButton>
-        <Typography variant='h6' className={classes.title}>
+        {<Typography variant='h6' className={classes.title}>
           {props.auth
             ? `Welcome ${props.auth.firstName} ${props.auth.lastName}`
             : 'Ryde'}
-        </Typography>
+        </Typography>}
         <Typography variant='h6' className={classes.title}>
           {props.auth ? `${props.auth.email}` : null}
         </Typography>
         {props.auth ? (
           <>
-            <Button color='inherit'>
-              <a style={{ textDecoration: 'none', color: 'white' }} href='/'>
-                Home
-              </a>
-            </Button>
             <Button color='inherit'>
               <a
                 style={{ textDecoration: 'none', color: 'white' }}
@@ -72,22 +67,24 @@ const NavBar = props => {
           </>
         ) : (
           <>
-            <Button color='inherit'>
-              <a
-                style={{ textDecoration: 'none', color: 'white' }}
-                href='/login'
-              >
-                Login
-              </a>
-            </Button>
-            <Button color='inherit'>
-              <a
-                style={{ textDecoration: 'none', color: 'white' }}
-                href='/register'
-              >
-                Register
-              </a>
-            </Button>
+            {/* {props.auth==null && <div>
+              <Button color='inherit'>
+                <a
+                  style={{ textDecoration: 'none', color: 'white' }}
+                  href='/login'
+                >
+                  Login
+                </a>
+              </Button>
+              <Button color='inherit'>
+                <a
+                  style={{ textDecoration: 'none', color: 'white' }}
+                  href='/register'
+                >
+                  Register
+                </a>
+              </Button>
+            </div>} */}
           </>
         )}
       </Toolbar>

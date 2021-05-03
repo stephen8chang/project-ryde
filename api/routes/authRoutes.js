@@ -9,7 +9,8 @@ module.exports = app => {
         firstName,
         lastName,
         email,
-        password
+        password,
+        admin: false,
       });
       await user.save();
       res.send({ message: 'Registered!', redirectUrl: '/login' });
@@ -40,8 +41,12 @@ module.exports = app => {
   app.get('/api/user', async (req, res) => {
     res.send(req.session.user);
   });
+  app.get('/api/user/all', async (req, res) => {
+    const users = await User.find({});
+    res.json(users);
+  });
   app.get('/api/logout', async (req, res) => {
-    req.session.destroy(err => {});
+    req.session.destroy(err => { });
     res.redirect('/');
   });
 };

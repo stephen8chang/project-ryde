@@ -6,7 +6,8 @@ const userSchema = new Schema({
   firstName: String,
   lastName: String,
   email: String,
-  password: String
+  password: String,
+  admin: Boolean
 });
 userSchema.pre('save', async function(next) {
   const user = this;
