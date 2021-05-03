@@ -1,14 +1,19 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const { Schema } = mongoose;
-const projectSchema = new Schema({
-  name: String,
-  description: String,
-  id: Number
-});
-projectSchema.pre('save', async function(next) {
 
-  next();
+const projectSchema = new Schema({
+  creator: String,
+  projectName: String,
+  description: String,
+  funds: Number,
+  checkedOut: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'checkedOut', default: [] }
+  ],
+  projectUsers: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'users', default: [] }
+  ],
+  access: Boolean
 });
-const User = mongoose.model('projects', projectSchema);
-module.exports = Projects;
+
+const Project = mongoose.model('projects', projectSchema);
+module.exports = Project;
