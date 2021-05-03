@@ -3,7 +3,8 @@ const { Schema } = mongoose;
 
 const HWsetSchema = new Schema({
   name: String,
-  available: Number
+  available: Number,
+  fundsPer: Number
 });
 
 const HWset = mongoose.model('hwset', HWsetSchema);

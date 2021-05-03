@@ -46,6 +46,7 @@ const HardwareTable = ({ hardwares, fetchAllHardwares }) => {
           <TableHead>
             <TableRow>
               <TableCell align='center'>Hardware Name</TableCell>
+              <TableCell align='center'>Funds Per Hardware</TableCell>
               <TableCell align='center'>Hardware Available</TableCell>
               <TableCell align='center'>Delete</TableCell>
             </TableRow>
@@ -55,6 +56,9 @@ const HardwareTable = ({ hardwares, fetchAllHardwares }) => {
               <TableRow key={hardware.name}>
                 <TableCell component='th' scope='row' align='center'>
                   {hardware.name}
+                </TableCell>
+                <TableCell component='th' scope='row' align='center'>
+                  {hardware.fundsPer}
                 </TableCell>
                 <TableCell align='center'>{hardware.available}</TableCell>
                 <TableCell align='center'>
