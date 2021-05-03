@@ -124,6 +124,9 @@ const ProjectsScreen = props => {
       console.log('Please enter a value of at least 1.');
       setSuccessMessage('');
       setErrorMessage('Please enter a value of at least 1.');
+    } else if (checkedOutEntireElement.hardware.fundsPer * Number(hardwareQty) > openedProject.funds) {
+      setSuccessMessage('');
+      setErrorMessage('Not enough funds!');
     } else {
       setErrorMessage('');
       setSuccessMessage('Successfully updated.');
