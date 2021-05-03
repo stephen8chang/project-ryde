@@ -30,6 +30,7 @@ const CreateProject = ({ auth, fetchAllProjects }) => {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [funds, setFunds] = useState('')
   const errorMessage = 'Please fill out all fields.';
   const successMessage = 'Project created!';
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
@@ -48,12 +49,14 @@ const CreateProject = ({ auth, fetchAllProjects }) => {
       await axios.post('/api/projects/create', {
         projectName: name,
         description,
+        funds: Number(funds),
         checkedOut: checkedOut.data,
         creator: auth.email
       });
       fetchAllProjects();
       setName('');
       setDescription('');
+      setFunds('')
       setSuccessSnackbarOpen(true);
     } else {
       setErrorSnackbarOpen(true);
@@ -93,6 +96,17 @@ const CreateProject = ({ auth, fetchAllProjects }) => {
         style={{ width: '75%' }}
         value={description}
         onChange={e => setDescription(e.target.value)}
+      />
+      <TextField
+        variant='filled'
+        margin='normal'
+        required
+        id='Funds'
+        label='Funds'
+        name='Funds'
+        style={{ width: '75%' }}
+        value={funds}
+        onChange={e => setFunds(e.target.value)}
       />
       <Button
         onClick={handleOnSubmit}

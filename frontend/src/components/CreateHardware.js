@@ -30,6 +30,7 @@ const CreateHardware = ({ fetchAllHardwares }) => {
 
   const [name, setName] = useState('');
   const [available, setAvailable] = useState('');
+  const [fundsPer, setFundsPer] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const successMessage = 'Hardware set created!';
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
@@ -40,11 +41,13 @@ const CreateHardware = ({ fetchAllHardwares }) => {
       if (Number.isInteger(Number(available))) {
         await axios.post('/api/hardware/create', {
           name,
-          available: Number(available)
+          available: Number(available),
+          fundsPer: Number(fundsPer)
         });
         fetchAllHardwares();
         setName('');
         setAvailable('');
+        setFundsPer('');
         setErrorSnackbarOpen(false);
         setSuccessSnackbarOpen(true);
       } else {
@@ -89,6 +92,17 @@ const CreateHardware = ({ fetchAllHardwares }) => {
         style={{ width: '75%' }}
         value={available}
         onChange={e => setAvailable(e.target.value)}
+      />
+      <TextField
+        variant='filled'
+        margin='normal'
+        required
+        id='Funds Per Hardware'
+        label='Funds Per Hardware'
+        name='Funds Per Hardware'
+        style={{ width: '75%' }}
+        value={fundsPer}
+        onChange={e => setFundsPer(e.target.value)}
       />
       <Button
         onClick={handleOnSubmit}
