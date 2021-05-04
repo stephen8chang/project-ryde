@@ -19,6 +19,7 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1
   }
 }));
+
 const NavBar = props => {
   const classes = useStyles();
   return (
