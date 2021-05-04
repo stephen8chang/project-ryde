@@ -38,6 +38,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center'
   }
 }));
+
 const ProjectsScreen = props => {
   const classes = useStyles();
   const [projects, setProjects] = useState([]);
