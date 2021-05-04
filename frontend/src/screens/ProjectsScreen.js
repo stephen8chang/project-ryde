@@ -39,19 +39,6 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const getProjectsMirror = async () => {
-  await axios.get('/api/projects/all').then(projects => {
-    return projects.data;
-  });
-}
-export const getHardwaresMirror = async () => {
-  
-}
-export const getFirstHardwareMirror = async (_id) => {
-  let hardware = await axios.get('/api/checked/hardware/' + _id);
-  return hardware.data[0];
-}
-
 const ProjectsScreen = props => {
   const classes = useStyles();
   const [projects, setProjects] = useState([]);

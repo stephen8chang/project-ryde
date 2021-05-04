@@ -37,20 +37,6 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const checkValidEmailMirror = mail => {
-  if (mail === '') {
-    return false;
-  }
-  if (
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-      mail.toLowerCase()
-    )
-  ) {
-    return true;
-  }
-  return false;
-};
-
 function RegisterScreen(props) {
   const classes = useStyles();
   const history = useHistory();
