@@ -56,6 +56,7 @@ const ProjectsScreen = props => {
   const [userDropDown, setUserDropDown] = useState('');
   const [hardwareQty, setHardwareQty] = useState('');
   const [addMoreFunds, setAddMoreFunds] = useState('');
+  const [disableCheckBtn, setDisableCheckBtn] = useState(false);
   useEffect(() => {
     if (errorMessage !== '') {
       setSuccessMessage('');
@@ -102,6 +103,7 @@ const ProjectsScreen = props => {
         qty: Number(hardwareQty),
         fundsPer: checkedOutEntireElement.hardware.fundsPer
       });
+      window.location.reload();
     }
     setOpenedMessage(true);
   };
@@ -116,7 +118,6 @@ const ProjectsScreen = props => {
         hardwareQtyAvailable = element.hardware.available;
       }
     });
-    console.log(hardwareQtyAvailable, hardwareQty);
     if (hardwareQtyAvailable < Number(hardwareQty)) {
       console.log('Not enough hardware sets to check out.');
       setSuccessMessage('');
@@ -125,7 +126,10 @@ const ProjectsScreen = props => {
       console.log('Please enter a value of at least 1.');
       setSuccessMessage('');
       setErrorMessage('Please enter a value of at least 1.');
-    } else if (checkedOutEntireElement.hardware.fundsPer * Number(hardwareQty) > openedProject.funds) {
+    } else if (
+      checkedOutEntireElement.hardware.fundsPer * Number(hardwareQty) >
+      openedProject.funds
+    ) {
       setSuccessMessage('');
       setErrorMessage('Not enough funds!');
     } else {
@@ -139,6 +143,7 @@ const ProjectsScreen = props => {
         qty: Number(hardwareQty),
         fundsPer: checkedOutEntireElement.hardware.fundsPer
       });
+      window.location.reload();
     }
     setOpenedMessage(true);
   };
@@ -148,27 +153,25 @@ const ProjectsScreen = props => {
     if (Number(addMoreFunds) <= 0) {
       setSuccessMessage('');
       setErrorMessage('Please enter a value of at least 1.');
-    }
-    else {
+    } else {
       setErrorMessage('');
       setSuccessMessage('Successfully updated funds.');
       axios.post('/api/projects/addFunds', {
         funds: addMoreFunds,
         id: openedProject._id
       });
+      window.location.reload();
     }
     setAddMoreFunds('');
     setOpenedMessage(true);
     window.location.reload(false);
-  }
+  };
 
   const handleAddUser = () => {
-    console.log(userDropDown)
     if (openedProject.projectUsers.includes(userDropDown)) {
       setSuccessMessage('');
       setErrorMessage('User already added to project');
-    }
-    else {
+    } else {
       setErrorMessage('');
       setSuccessMessage('User added to project.');
       axios.post('/api/projects/addUser', {
@@ -176,9 +179,9 @@ const ProjectsScreen = props => {
         id: openedProject._id
       });
     }
-    setUserDropDown('')
-    setOpenedMessage(true)
-  }
+    setUserDropDown('');
+    setOpenedMessage(true);
+  };
   const fetchAllProjects = async () => {
     await axios.get('/api/projects/all').then(projects => {
       setProjects(projects.data);
@@ -193,7 +196,7 @@ const ProjectsScreen = props => {
     await axios.get('/api/user/all').then(fetchedUsers => {
       setUsers(fetchedUsers);
     });
-  }
+  };
   const onOpenProject = async project => {
     setHardwareDropDown('');
     setHardwareQty('');
@@ -205,7 +208,7 @@ const ProjectsScreen = props => {
     );
 
     //Gets all of the users for openedProject
-    setOpenedProjectAddedUsers(project.projectUsers)
+    setOpenedProjectAddedUsers(project.projectUsers);
 
     //Gets all of the hardware ids available
     const hardwareIds = hardwares.map(element => element._id);
@@ -232,7 +235,6 @@ const ProjectsScreen = props => {
         }
       });
     });
-    //console.log(missingHardwareSets);
     if (missingHardwareSets) {
       const checkedOut = await axios.post('/api/checked/create', {
         hardwareSets: missingHardwareSets
@@ -267,24 +269,14 @@ const ProjectsScreen = props => {
     });
     await Promise.all(hardwareArray).then(res => setOpenedProjectHardware(res));
   };
-  const handleButtonDisable = (creator) => {
-    // console.log("creator", creator)
-    // console.log("props.auth", props.auth)
-    // console.log("props.auth.admin", props.auth.admin)
-    // console.log("props.auth.email", props.auth.email)
-    // console.log("props.auth && props.auth.admin =", props.auth && props.auth.admin)
-    // console.log("creator === props.auth.email =", creator === props.auth.email)
-    // console.log("openedProjectAddedUsers", openedProjectAddedUsers)
-    // console.log("props.auth._id", props.auth._id)
+  const handleButtonDisable = creator => {
     if (props.auth && props.auth.admin) {
       return false;
     } else if (creator === props.auth.email) {
       return false;
-    }
-    else if (openedProjectAddedUsers.includes(props.auth._id)) {
+    } else if (openedProjectAddedUsers.includes(props.auth._id)) {
       return false;
-    }
-    else {
+    } else {
       return true;
     }
   };
@@ -329,8 +321,17 @@ const ProjectsScreen = props => {
                       <Button
                         variant='contained'
                         color='primary'
-                        disabled={hardwareDropDown === '' || hardwareQty === '' || handleButtonDisable(openedProject.creator)}
-                        onClick={handleCheckIn}
+                        disabled={
+                          hardwareDropDown === '' ||
+                          hardwareQty === '' ||
+                          handleButtonDisable(openedProject.creator) ||
+                          disableCheckBtn
+                        }
+                        onClick={() => {
+                          setDisableCheckBtn(true);
+                          handleCheckIn();
+                          setDisableCheckBtn(false);
+                        }}
                       >
                         Check In
                       </Button>
@@ -339,16 +340,25 @@ const ProjectsScreen = props => {
                       <Button
                         variant='contained'
                         color='primary'
-                        disabled={hardwareDropDown === '' || hardwareQty === '' || handleButtonDisable(openedProject.creator)}
-                        onClick={handleCheckOut}
+                        disabled={
+                          hardwareDropDown === '' ||
+                          hardwareQty === '' ||
+                          handleButtonDisable(openedProject.creator) ||
+                          disableCheckBtn
+                        }
+                        onClick={() => {
+                          setDisableCheckBtn(true);
+                          handleCheckOut();
+                          setDisableCheckBtn(false);
+                        }}
                       >
                         Check Out
                       </Button>
                     </TableCell>
                   </TableRow>
                 </TableHead>
-                <TableHead >
-                  <TableRow align="center">
+                <TableHead>
+                  <TableRow align='center'>
                     <TableCell align='center'>
                       <b>Current Funds: {openedProject.funds}</b>
                     </TableCell>
@@ -364,15 +374,18 @@ const ProjectsScreen = props => {
                         variant='contained'
                         color='primary'
                         onClick={handleAddMoreFunds}
-                        disabled={addMoreFunds == '' || handleButtonDisable(openedProject.creator)}
+                        disabled={
+                          addMoreFunds == '' ||
+                          handleButtonDisable(openedProject.creator)
+                        }
                       >
                         Add Funds to Project
                       </Button>
                     </TableCell>
                   </TableRow>
                 </TableHead>
-                <TableHead >
-                  <TableRow align="center">
+                <TableHead>
+                  <TableRow align='center'>
                     <TableCell align='center'>
                       <p>Number of users: {users.data.length}</p>
                     </TableCell>
@@ -383,10 +396,7 @@ const ProjectsScreen = props => {
                         onChange={e => setUserDropDown(e.target.value)}
                       >
                         {users.data.map(user => (
-                          <MenuItem
-                            key={user._id}
-                            value={user._id}
-                          >
+                          <MenuItem key={user._id} value={user._id}>
                             {user.firstName}
                           </MenuItem>
                         ))}
@@ -397,7 +407,10 @@ const ProjectsScreen = props => {
                         variant='contained'
                         color='primary'
                         onClick={handleAddUser}
-                        disabled={userDropDown == '' || handleButtonDisable(openedProject.creator)}
+                        disabled={
+                          userDropDown == '' ||
+                          handleButtonDisable(openedProject.creator)
+                        }
                       >
                         Add User to Project
                       </Button>
@@ -482,7 +495,9 @@ const ProjectsScreen = props => {
                 </TableRow>
                 <TableRow>
                   <TableCell align='center'>{element.hardware.name}</TableCell>
-                  <TableCell align='center'>{element.hardware.fundsPer}</TableCell>
+                  <TableCell align='center'>
+                    {element.hardware.fundsPer}
+                  </TableCell>
                   <TableCell align='center'>
                     {element.hardware.available > 10 ? (
                       <Typography style={{ color: 'green' }}>
