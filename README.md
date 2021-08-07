@@ -8,6 +8,3 @@
 - To test all features, use admin account provided below:
     - User: stephen8chang@gmail.com
     - Pass: 123
-
-### Known Issues
-- Occasionally, when updating the server, the server will log the current user out. This has happened very infrequently, and we are still investigating the issue.
