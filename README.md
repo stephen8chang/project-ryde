@@ -1,7 +1,7 @@
-### Link to Deployed App
+### Link to Deployed App (not encouraged)
 - https://project-ryde.herokuapp.com
 
-### User Instructions
+### User Instructions to Run (encouraged)
 - Clone project-ryde project into desired local repository or folder.
 - Perform ```npm install``` within /api and /frontend, as well as the root directory.
 - Run ```npm run dev``` to run the project client and backend. 
